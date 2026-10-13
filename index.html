@@ -292,6 +292,10 @@
         ابدأ التصميم
       </button>
       <a href="about.html" class="hero-btn secondary" onclick="navigateTo(event, 'about.html')">تعرّف علينا</a>
+      <button class="hero-btn secondary" id="installBtn" style="display:none" onclick="installApp()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        ثبّت التطبيق
+      </button>
     </div>
     <div class="hero-features">
       <div class="feature">
@@ -334,7 +338,7 @@
 </header>
 
 <nav id="mainNav">
-  <a href="ufoq.html" class="active">المُعدِّل</a>
+  <a href="index.html" class="active">المُعدِّل</a>
   <a href="about.html" onclick="navigateTo(event, 'about.html')">من نحن</a>
 </nav>
 
@@ -1722,6 +1726,54 @@ function navigateTo(e, url) {
 }
 // Expose to inline onclick handlers (module scope is not global)
 window.navigateTo = navigateTo;
+
+/* ============================================================
+   PWA — Service Worker registration + Install button
+============================================================ */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => {
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          nw && nw.addEventListener('statechange', () => {
+            if (nw.state === 'activated' && navigator.serviceWorker.controller) {
+              toast('تم تحديث التطبيق إلى أحدث إصدار.');
+            }
+          });
+        });
+      })
+      .catch(err => console.log('SW registration failed:', err));
+  });
+
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.style.display = 'inline-flex';
+  });
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.style.display = 'none';
+    toast('تم تثبيت أُفُق على جهازك ✓');
+  });
+}
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+      if (r.outcome === 'accepted') toast('جاري التثبيت…');
+      deferredPrompt = null;
+      const btn = document.getElementById('installBtn');
+      if (btn) btn.style.display = 'none';
+    });
+  } else {
+    toast('استخدم: قائمة المتصفح ← "إضافة إلى الشاشة الرئيسية"');
+  }
+}
+let deferredPrompt = null;
 </script>
 </body>
 </html>

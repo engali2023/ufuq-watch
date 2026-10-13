@@ -180,7 +180,30 @@
   /* ---------- configurator panel ---------- */
   #panel{position:fixed;top:24px;left:24px;bottom:24px;width:312px;z-index:6;
     background:var(--panel);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-    border:1px solid var(--line);display:flex;flex-direction:column;animation:rise .9s .3s both}
+    border:1px solid var(--line);display:flex;flex-direction:column;animation:rise .9s .3s both;
+    transition:transform .5s cubic-bezier(.16,1,.3,1),opacity .4s}
+  #panel.hide{transform:translateX(-360px);opacity:0;pointer-events:none}
+
+  /* ---------- panel toggle ---------- */
+  #panelToggle{
+    position:fixed;top:32px;left:32px;z-index:7;
+    width:42px;height:42px;border-radius:50%;
+    background:var(--panel);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--mut);transition:.3s;backdrop-filter:blur(12px);
+    animation:rise .9s .35s both;
+  }
+  #panelToggle:hover{color:var(--acc);border-color:var(--acc);transform:scale(1.08)}
+  #panelToggle svg{transition:transform .5s cubic-bezier(.16,1,.3,1)}
+  body.panel-hidden #panelToggle{left:24px}
+  body.panel-hidden #panelToggle svg{transform:rotate(180deg)}
+  body.panel-hidden #brand{opacity:.6;transition:opacity .4s}
+  body.ar #panelToggle{display:none}
+
+  @media (max-width:820px){
+    #panelToggle{top:auto;bottom:calc(46vh + 32px);left:16px}
+    body.panel-hidden #panelToggle{left:16px;bottom:24px}
+  }
   .p-head{padding:22px 24px 18px;border-bottom:1px solid var(--line)}
   .micro{font-size:11px;letter-spacing:.2em;color:var(--acc)}
   .p-head h2{font-family:'Amiri',serif;font-weight:700;font-size:28px;margin-top:8px}
@@ -348,6 +371,12 @@
 </div>
 
 <div id="hint">اسحب للتدوير · مرّر للتقريب · مرر المؤشر على التاريخ أو القمر أو التاج</div>
+
+<button id="panelToggle" onclick="togglePanel()" aria-label="إظهار/إخفاء القائمة">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M10 3L5 8l5 5"/>
+  </svg>
+</button>
 
 <aside id="panel">
   <div class="p-head">
@@ -1567,7 +1596,10 @@ function exitAR() {
 }
 $('tryOnBtn').onclick = enterAR;
 $('arExit').onclick = exitAR;
-addEventListener('keydown', e => { if (e.key === 'Escape') exitAR(); });
+addEventListener('keydown', e => {
+  if (e.key === 'Escape') exitAR();
+  if (e.key === 'h' || e.key === 'H' || e.key === 'ه') togglePanel();
+});
 
 const arPtr = new Map();
 let pinch0 = null, drag0 = null, lastGesture = 0;
@@ -1668,7 +1700,7 @@ addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
-  controls.target.x = innerWidth > 820 ? 4.5 : 0;
+  controls.target.x = innerWidth > 820 ? (document.getElementById('panel').classList.contains('hide') ? 0 : 4.5) : 0;
 });
 
 // Redraw canvas-painted textures once webfonts are ready
@@ -1726,6 +1758,26 @@ function navigateTo(e, url) {
 }
 // Expose to inline onclick handlers (module scope is not global)
 window.navigateTo = navigateTo;
+
+/* ============================================================
+   Panel toggle — show/hide configurator
+============================================================ */
+function togglePanel() {
+  const panel = document.getElementById('panel');
+  // أوقف حركة الدخول حتى لا تُلغي خاصية الإخفاء (الأنميشن أقوى من CSS العادي)
+  panel.style.animation = 'none';
+  const hidden = panel.classList.toggle('hide');
+  document.body.classList.toggle('panel-hidden', hidden);
+  // Re-center the 3D view so the watch stays balanced on screen
+  const target = innerWidth > 820 ? (hidden ? 0 : 4.5) : 0;
+  controls.target.x = target;
+  if (hidden) toast('اضغط السهم لعرض القائمة مجدداً');
+}
+window.togglePanel = togglePanel;
+// بعد انتهاء حركة الدخول، أوقفها حتى تعمل حركة الإخفاء بشكل سليم
+document.getElementById('panel')?.addEventListener('animationend', e => {
+  if (e.animationName === 'rise') e.target.style.animation = 'none';
+});
 
 /* ============================================================
    PWA — Service Worker registration + Install button

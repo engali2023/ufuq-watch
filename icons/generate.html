@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>مولّد أيقونات أُفُق</title>
+<style>
+  body{font-family:sans-serif;padding:40px;background:#0a1a14;color:#f5efe0;text-align:center}
+  canvas{margin:20px;border:1px solid #333;border-radius:8px}
+  a{display:inline-block;margin:10px;padding:12px 24px;background:#c9a84c;color:#0a1a14;text-decoration:none;border-radius:8px;font-weight:bold}
+  a:hover{background:#d4b85c}
+</style>
+</head>
+<body>
+<h1>مولّد أيقونات أُفُق</h1>
+<p>انقر على الروابط أدناه لتحميل الأيقونات</p>
+
+<canvas id="c192" width="192" height="192"></canvas>
+<canvas id="c512" width="512" height="512"></canvas>
+
+<div style="margin-top:20px">
+  <a id="dl192" download="icon-192.png">تحميل 192×192</a>
+  <a id="dl512" download="icon-512.png">تحميل 512×512</a>
+</div>
+
+<script>
+function drawIcon(canvas, size) {
+  const ctx = canvas.getContext('2d');
+  const s = size / 512;
+  
+  // Background gradient
+  const bgGrad = ctx.createLinearGradient(0, 0, 512*s, 512*s);
+  bgGrad.addColorStop(0, '#0a1a14');
+  bgGrad.addColorStop(1, '#1a5c42');
+  
+  // Rounded rect background
+  ctx.fillStyle = bgGrad;
+  ctx.beginPath();
+  if (ctx.roundRect) {
+    ctx.roundRect(0, 0, size, size, 80*s);
+  } else {
+    ctx.rect(0, 0, size, size);
+  }
+  ctx.fill();
+  
+  // Gold gradient for accents
+  const goldGrad = ctx.createLinearGradient(0, 0, 512*s, 512*s);
+  goldGrad.addColorStop(0, '#c9a84c');
+  goldGrad.addColorStop(1, '#e0b45f');
+  
+  // Outer circle
+  ctx.strokeStyle = goldGrad;
+  ctx.lineWidth = 8*s;
+  ctx.beginPath();
+  ctx.arc(256*s, 256*s, 140*s, 0, Math.PI*2);
+  ctx.stroke();
+  
+  // Inner circle (subtle)
+  ctx.strokeStyle = 'rgba(201,168,76,0.3)';
+  ctx.lineWidth = 2*s;
+  ctx.beginPath();
+  ctx.arc(256*s, 256*s, 120*s, 0, Math.PI*2);
+  ctx.stroke();
+  
+  // Brand text
+  ctx.fillStyle = goldGrad;
+  ctx.font = 'bold 110px "Amiri", serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('أُفُق', 256*s, 250*s);
+  
+  // Year
+  ctx.fillStyle = '#7a9a8a';
+  ctx.font = '26px "IBM Plex Sans Arabic", sans-serif';
+  ctx.fillText('١٩٤٨', 256*s, 340*s);
+}
+
+const c192 = document.getElementById('c192');
+const c512 = document.getElementById('c512');
+
+drawIcon(c192, 192);
+drawIcon(c512, 512);
+
+document.getElementById('dl192').href = c192.toDataURL('image/png');
+document.getElementById('dl512').href = c512.toDataURL('image/png');
+</script>
+</body>
+</html>

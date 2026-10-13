@@ -1,0 +1,1727 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1a14">
+<meta name="description" content="مُعَدِّل ساعات افتراضي مع تجربة واقع معزز — دار أُفُق للساعات، طرابلس ١٩٤٨">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="أُفُق">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>أُفُق · مُعَدِّل الساعات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a1a14; --ink:#f5efe0; --mut:#7a9a8a; --acc:#c9a84c;
+    --line:rgba(245,239,224,.1); --panel:rgba(10,26,20,.82);
+    --emerald:#1a5c42; --gold:#c9a84c; --cream:#f5efe0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--ink); overflow:hidden;
+    font-family:'IBM Plex Sans Arabic',sans-serif; -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+
+  /* ---------- hero / welcome ---------- */
+  #hero{
+    position:fixed;inset:0;z-index:50;
+    background:rgba(8,20,14,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    display:flex;align-items:center;justify-content:center;
+    opacity:1;transition:opacity .6s;
+  }
+  #hero:not(.on){opacity:0;pointer-events:none}
+  .hero-content{
+    text-align:center;max-width:600px;padding:40px 24px;
+    animation:rise .8s .2s both;
+  }
+  .hero-badge{
+    display:inline-block;
+    font-size:10px;letter-spacing:.25em;color:var(--acc);
+    border:1px solid rgba(201,168,76,.3);border-radius:20px;
+    padding:8px 20px;margin-bottom:28px;
+    background:rgba(201,168,76,.06);
+  }
+  .hero-content h1{
+    font-family:'Amiri',serif;font-weight:700;
+    font-size:clamp(32px,5vw,52px);line-height:1.3;
+    margin-bottom:20px;
+  }
+  .hero-content h1 em{font-style:normal;color:var(--acc)}
+  .hero-sub{
+    color:var(--mut);font-size:15px;line-height:2;
+    max-width:480px;margin:0 auto 32px;
+  }
+  .hero-actions{
+    display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+    margin-bottom:36px;
+  }
+  .hero-btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:14px 28px;border-radius:12px;
+    font-size:13px;font-weight:500;letter-spacing:.05em;
+    text-decoration:none;transition:.25s;
+    border:1px solid var(--line);
+  }
+  .hero-btn.primary{
+    background:var(--acc);color:#0a1a14;border-color:var(--acc);
+  }
+  .hero-btn.primary:hover{background:#d4b85c;border-color:#d4b85c;transform:translateY(-2px)}
+  .hero-btn.secondary{
+    background:transparent;color:var(--ink);border-color:var(--line);
+  }
+  .hero-btn.secondary:hover{border-color:var(--acc);color:var(--acc);transform:translateY(-2px)}
+  .hero-features{
+    display:flex;gap:24px;justify-content:center;flex-wrap:wrap;
+  }
+  .feature{
+    display:flex;align-items:center;gap:8px;
+    font-size:11px;color:var(--mut);letter-spacing:.05em;
+  }
+  .f-icon{color:var(--acc);font-size:14px}
+  .hero-close{
+    position:absolute;top:24px;left:24px;
+    width:40px;height:40px;border-radius:50%;
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--mut);transition:.2s;background:var(--panel);
+  }
+  .hero-close:hover{color:var(--acc);border-color:var(--acc)}
+
+  /* ---------- floating help button ---------- */
+  #helpBtn{
+    position:fixed;bottom:30px;right:34px;z-index:6;
+    width:44px;height:44px;border-radius:50%;
+    background:var(--panel);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--mut);transition:.2s;backdrop-filter:blur(12px);
+    animation:rise .9s .8s both;
+  }
+  #helpBtn:hover{color:var(--acc);border-color:var(--acc)}
+  body.ar #helpBtn{display:none}
+
+  /* ---------- page transition overlay ---------- */
+  #pageTransition{
+    position:fixed;inset:0;z-index:999;
+    background:var(--bg);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;
+    transition:opacity .4s cubic-bezier(.4,0,.2,1);
+  }
+  #pageTransition.on{opacity:1;pointer-events:all}
+  #pageTransition .loader{
+    width:40px;height:40px;
+    border:2px solid var(--line);
+    border-top-color:var(--acc);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------- stage ---------- */
+  #stage{position:fixed;inset:0}
+  #stage canvas{display:block;position:absolute;inset:0}
+  #cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+       transform:scaleX(-1);display:none;background:#000}
+  body.ar #cam{display:block}
+  #vignette{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(115% 90% at 50% 42%, transparent 52%, rgba(5,12,8,.6) 100%)}
+  body.ar #vignette{display:none}
+
+  /* ---------- wrist guide ---------- */
+  #guide{position:fixed;inset:0;display:flex;flex-direction:column;gap:18px;align-items:center;
+    justify-content:center;pointer-events:none;opacity:0;transition:opacity .5s;color:var(--acc);z-index:3}
+  #guide.on{opacity:1}
+  #guide svg{width:150px;height:auto}
+  #guide ellipse,#guide circle{animation:dash 6s linear infinite}
+  #guide span{font-size:12px;letter-spacing:.2em;color:var(--mut)}
+  @keyframes dash{to{stroke-dashoffset:-140}}
+
+  /* ---------- brand ---------- */
+  #brand{position:fixed;top:30px;left:34px;z-index:5;pointer-events:none;
+    animation:rise .9s .15s both}
+  #brand .wordmark{font-family:'Amiri',serif;font-weight:700;font-size:26px;letter-spacing:.15em}
+  #brand .sub{margin-top:7px;font-size:11px;letter-spacing:.2em;color:var(--mut)}
+
+  /* ---------- main navigation ---------- */
+  #mainNav{
+    position:fixed;top:30px;right:34px;z-index:6;
+    display:flex;gap:8px;
+    animation:rise .9s .3s both;
+  }
+  #mainNav a{
+    color:var(--mut);text-decoration:none;font-size:13px;letter-spacing:.1em;
+    padding:8px 16px;border:1px solid var(--line);border-radius:20px;
+    transition:.2s;background:var(--panel);backdrop-filter:blur(12px);
+  }
+  #mainNav a:hover{color:var(--ink);border-color:var(--acc)}
+  #mainNav a.active{color:var(--acc);border-color:var(--acc)}
+
+  @media (max-width:820px){
+    #mainNav{top:18px;right:20px}
+    #mainNav a{font-size:12px;padding:8px 14px}
+  }
+
+  /* ---------- live clock ---------- */
+  #clock{position:fixed;left:34px;bottom:30px;z-index:5;pointer-events:none;animation:rise .9s .45s both}
+  #clockTime{font-size:22px;font-weight:500;letter-spacing:.1em;font-variant-numeric:tabular-nums}
+  #clockMeta{margin-top:5px;font-size:11px;letter-spacing:.2em;color:var(--mut)}
+  #clockMeta b{color:var(--acc);font-weight:500}
+
+  #hint{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:5;pointer-events:none;
+    font-size:12px;letter-spacing:.2em;color:var(--mut);animation:rise .9s .6s both;white-space:nowrap}
+
+  /* ---------- configurator panel ---------- */
+  #panel{position:fixed;top:24px;left:24px;bottom:24px;width:312px;z-index:6;
+    background:var(--panel);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    border:1px solid var(--line);display:flex;flex-direction:column;animation:rise .9s .3s both}
+  .p-head{padding:22px 24px 18px;border-bottom:1px solid var(--line)}
+  .micro{font-size:11px;letter-spacing:.2em;color:var(--acc)}
+  .p-head h2{font-family:'Amiri',serif;font-weight:700;font-size:28px;margin-top:8px}
+  .p-head .specs{margin-top:8px;font-size:11px;letter-spacing:.15em;color:var(--mut)}
+  .p-scroll{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(245,239,224,.2) transparent}
+  .p-scroll::-webkit-scrollbar{width:4px}
+  .p-scroll::-webkit-scrollbar-thumb{background:rgba(245,239,224,.18)}
+  section{padding:20px 24px;border-bottom:1px solid var(--line)}
+  .sec-label{display:flex;gap:12px;font-size:12px;letter-spacing:.2em;color:var(--mut)}
+  .sec-label em{font-style:normal;color:var(--acc)}
+  .swatches{display:flex;gap:14px;margin:16px 0 10px}
+  .swatch{width:28px;height:28px;border-radius:50%;position:relative;flex:none;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.16), inset -3px -4px 6px rgba(0,0,0,.35), inset 3px 4px 6px rgba(255,255,255,.14);
+    transition:transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s, outline-color .25s;
+    cursor:pointer}
+  .swatch:hover{transform:scale(1.18);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2), inset -3px -4px 6px rgba(0,0,0,.35), inset 3px 4px 6px rgba(255,255,255,.14), 0 4px 12px rgba(0,0,0,.3)}
+  .swatch.sel{outline:2px solid var(--acc);outline-offset:3px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2), 0 0 16px rgba(201,168,76,.35)}
+  .sel-name{font-size:13px;letter-spacing:.1em;color:var(--ink);min-height:20px}
+  .strap-row{display:flex;justify-content:space-between;align-items:baseline;width:100%;
+    padding:12px 0 12px 14px;border-right:2px solid transparent;
+    transition:border-color .25s, background .25s, transform .25s;text-align:right;
+    border-radius:0 8px 8px 0}
+  .strap-row:hover{border-right-color:rgba(201,168,76,.4);background:rgba(201,168,76,.04);transform:translateX(-4px)}
+  .strap-row.sel{border-right-color:var(--acc);background:rgba(201,168,76,.08)}
+  .strap-row .s-name{font-size:14px;letter-spacing:.05em}
+  .strap-row.sel .s-name{color:var(--acc)}
+  .strap-row .s-price{font-size:11px;letter-spacing:.15em;color:var(--mut)}
+  .sub-colors{display:flex;gap:10px;padding:2px 0 12px 14px}
+  .sub-colors.hide{display:none}
+  .mini{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);transition:transform .2s, box-shadow .2s;cursor:pointer}
+  .mini:hover{transform:scale(1.2)}
+  .mini.sel{outline:2px solid var(--acc);outline-offset:2px;box-shadow:0 0 10px rgba(201,168,76,.4)}
+  #panel footer{padding:18px 24px 20px;border-top:1px solid var(--line)}
+  #refLine{font-size:11px;letter-spacing:.2em;color:var(--mut)}
+  #priceLine{font-family:'Amiri',serif;font-weight:700;font-size:32px;margin:6px 0 14px}
+  #tryOnBtn{width:100%;padding:14px;border:1px solid var(--acc);color:var(--acc);
+    font-size:12px;letter-spacing:.2em;display:flex;align-items:center;justify-content:center;gap:10px;
+    transition:background .25s, color .25s, transform .25s, box-shadow .25s;
+    border-radius:10px}
+  #tryOnBtn:hover{background:var(--acc);color:#0a1a14;transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,168,76,.3)}
+  .p-note{margin-top:12px;font-size:11px;line-height:1.7;letter-spacing:.05em;color:var(--mut)}
+
+  /* ---------- complication tooltip ---------- */
+  #tooltip{position:fixed;z-index:9;pointer-events:none;min-width:190px;max-width:250px;
+    background:rgba(10,26,20,.94);border:1px solid var(--line);border-right:2px solid var(--acc);
+    padding:11px 14px 12px;opacity:0;transform:translateY(5px);transition:opacity .16s,transform .16s}
+  #tooltip.on{opacity:1;transform:none}
+  .tt-name{font-family:'Amiri',serif;font-style:italic;font-size:17px;color:var(--acc)}
+  .tt-val{font-size:13px;margin-top:4px;letter-spacing:.04em}
+  .tt-sub{font-size:11px;margin-top:5px;letter-spacing:.1em;color:var(--mut)}
+
+  /* ---------- toast ---------- */
+  #toast{position:fixed;left:50%;bottom:64px;transform:translate(-50%,10px);z-index:10;
+    background:rgba(10,26,20,.94);border:1px solid var(--line);padding:10px 18px;
+    font-size:12px;letter-spacing:.1em;opacity:0;transition:.3s;pointer-events:none}
+  #toast.on{opacity:1;transform:translate(-50%,0)}
+
+  /* ---------- AR ui ---------- */
+  #arui{display:none;position:fixed;inset:0;z-index:7;pointer-events:none}
+  body.ar #arui{display:block}
+  body.ar #panel,body.ar #brand,body.ar #clock,body.ar #hint{display:none}
+  .ar-top{position:absolute;top:22px;left:22px;right:22px;display:flex;justify-content:space-between;align-items:center}
+  .ar-chip{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);
+    padding:9px 14px;font-size:11px;letter-spacing:.2em;color:var(--mut);backdrop-filter:blur(12px)}
+  .ar-chip .dot{width:7px;height:7px;border-radius:50%;background:#5c564c;transition:.3s}
+  .ar-chip.warn .dot{background:#c9a84c}
+  .ar-chip.ok .dot{background:#7fae7f;box-shadow:0 0 8px rgba(127,174,127,.7)}
+  .ar-btn{pointer-events:auto;display:inline-flex;align-items:center;gap:10px;
+    background:var(--panel);border:1px solid var(--line);padding:10px 16px;
+    font-size:12px;letter-spacing:.2em;backdrop-filter:blur(12px);transition:.2s}
+  .ar-btn:hover{border-color:var(--acc);color:var(--acc)}
+  .ar-bottom{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);
+    display:flex;flex-direction:column;gap:12px;align-items:center}
+  .ar-hint{font-size:11px;letter-spacing:.2em;color:var(--mut);text-align:center}
+  .ar-ctl{display:flex;gap:14px;align-items:center;pointer-events:auto;
+    background:var(--panel);border:1px solid var(--line);padding:10px 16px;backdrop-filter:blur(12px)}
+  .ar-ctl label{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.2em;color:var(--mut)}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:120px;height:2px;background:rgba(245,239,224,.25);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--acc);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--acc);border:none;cursor:pointer}
+
+  #fallback{position:fixed;inset:0;display:none;place-items:center;z-index:20;
+    font-size:14px;letter-spacing:.2em;color:var(--mut);text-align:center;padding:40px}
+
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  @media (max-width:820px){
+    #panel{top:auto;left:12px;right:12px;bottom:12px;width:auto;max-height:46vh}
+    #brand{top:18px;left:20px}#brand .wordmark{font-size:24px}
+    #clock{left:20px;bottom:calc(46vh + 24px)}
+    #hint{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero / Welcome overlay -->
+<div id="hero" class="on">
+  <div class="hero-content">
+    <div class="hero-badge">دار أُفُق للساعات · طرابلس</div>
+    <h1>مُعَدِّل السَّاعَاتِ <em>الافتراضي</em></h1>
+    <p class="hero-sub">
+      صمّم ساعتك المثالية من مجموعة أُفُق — اختر معدن العلبة، لون القرص، والحزام،
+      ثم جرّبها على معصمك بتقنية الواقع المعزز.
+    </p>
+    <div class="hero-actions">
+      <button class="hero-btn primary" onclick="document.getElementById('hero').classList.remove('on')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        ابدأ التصميم
+      </button>
+      <a href="about.html" class="hero-btn secondary" onclick="navigateTo(event, 'about.html')">تعرّف علينا</a>
+    </div>
+    <div class="hero-features">
+      <div class="feature">
+        <span class="f-icon">◈</span>
+        <span class="f-text">تخصيص كامل</span>
+      </div>
+      <div class="feature">
+        <span class="f-icon">✦</span>
+        <span class="f-text">واقع معزز</span>
+      </div>
+      <div class="feature">
+        <span class="f-icon">⟡</span>
+        <span class="f-text">جودة حرفية</span>
+      </div>
+    </div>
+  </div>
+  <button class="hero-close" onclick="document.getElementById('hero').classList.remove('on')" aria-label="إغلاق">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l14 14M15 1L1 15"/></svg>
+  </button>
+</div>
+
+<div id="stage">
+  <video id="cam" autoplay playsinline muted></video>
+  <div id="vignette"></div>
+</div>
+
+<div id="guide">
+  <svg viewBox="0 0 200 330">
+    <ellipse cx="100" cy="165" rx="66" ry="145" fill="none" stroke="currentColor" stroke-width="1.4"
+      stroke-dasharray="6 9" opacity=".45"/>
+    <circle cx="100" cy="165" r="44" fill="none" stroke="currentColor" stroke-width="1.4"
+      stroke-dasharray="4 7" opacity=".85"/>
+  </svg>
+  <span>ضع معصمك داخل الإطار</span>
+</div>
+
+<header id="brand">
+  <div class="wordmark">أُفُق</div>
+  <div class="sub">مَعْمَل السَّاعَاتِ — طَرَابُلُس · تأسّس ١٩٤٨</div>
+</header>
+
+<nav id="mainNav">
+  <a href="ufoq.html" class="active">المُعدِّل</a>
+  <a href="about.html" onclick="navigateTo(event, 'about.html')">من نحن</a>
+</nav>
+
+<div id="clock">
+  <div id="clockTime">٠٠:٠٠:٠٠</div>
+  <div id="clockMeta">مزامنة الحركة · <b id="tzMeta">UTC</b></div>
+</div>
+
+<div id="hint">اسحب للتدوير · مرّر للتقريب · مرر المؤشر على التاريخ أو القمر أو التاج</div>
+
+<aside id="panel">
+  <div class="p-head">
+    <div class="micro">مُعَدِّل السَّاعَة</div>
+    <h2>أُفُق أ-٧١ · هلال</h2>
+    <div class="specs">حركة أ-٧١ أوتوماتيكية · ٤١ مم · ٥ أجواء</div>
+  </div>
+  <div class="p-scroll">
+    <section>
+      <div class="sec-label"><em>٠١</em> معدن العلبة</div>
+      <div class="swatches" id="metalSw"></div>
+      <div class="sel-name" id="metalName"></div>
+    </section>
+    <section>
+      <div class="sec-label"><em>٠٢</em> القرص</div>
+      <div class="swatches" id="dialSw"></div>
+      <div class="sel-name" id="dialName"></div>
+    </section>
+    <section>
+      <div class="sec-label"><em>٠٣</em> الحزام والسوار</div>
+      <div id="strapRows"></div>
+    </section>
+  </div>
+  <footer>
+    <div id="refLine">المرجع: —</div>
+    <div id="priceLine">€—</div>
+    <button id="tryOnBtn">
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3">
+        <path d="M1 4V1h3M10 1h3v3M13 10v3h-3M4 13H1v-3"/><circle cx="7" cy="7" r="2.4"/>
+      </svg>
+      جرّبها على معصمك
+    </button>
+    <div class="p-note">كل ساعة أُفُق تُضبط في ست مواضع وتُجمّع بواسطة صانع واحد. المدة ستة أسابيع.</div>
+  </footer>
+</aside>
+
+<div id="tooltip">
+  <div class="tt-name" id="ttName"></div>
+  <div class="tt-val" id="ttVal"></div>
+  <div class="tt-sub" id="ttSub"></div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Floating help button -->
+<button id="helpBtn" onclick="document.getElementById('hero').classList.add('on')" aria-label="مساعدة">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6a2 2 0 1 1 4 0c0 1.5-2 1.5-2 3"/><circle cx="8" cy="12" r=".5"/></svg>
+</button>
+
+<div id="arui">
+  <div class="ar-top">
+    <button id="arExit" class="ar-btn">
+      <svg width="10" height="10" viewBox="0 0 10 10" stroke="currentColor" stroke-width="1.4">
+        <path d="M1 1l8 8M9 1L1 9"/></svg>
+      خروج
+    </button>
+    <div id="arStatus" class="ar-chip"><span class="dot"></span><span id="arStatusTxt">جارٍ تشغيل الكاميرا…</span></div>
+  </div>
+  <div class="ar-bottom">
+    <div class="ar-hint">اسحب للتحريك · قرّب لتغيير الحجم · دوّر أو اسحب للتدوير</div>
+    <div class="ar-ctl">
+      <button id="arAuto" class="ar-btn" style="border:none;padding:0;background:none">تلقائي: شغّال</button>
+      <label>دوّر <input type="range" id="arRot" min="-180" max="180" value="0"></label>
+    </div>
+  </div>
+</div>
+
+<div id="fallback">هذه التجربة تتطلب WebGL.<br>افتحها في متصفح حديث.</div>
+
+<!-- Page transition overlay -->
+<div id="pageTransition"><div class="loader"></div></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+/* ============================================================
+   0 · Shorthands, DOM, tiny tween engine
+============================================================ */
+const TAU = Math.PI * 2;
+const lerp = THREE.MathUtils.lerp, clamp = THREE.MathUtils.clamp;
+const $ = id => document.getElementById(id);
+
+const easeOutCubic  = k => 1 - Math.pow(1 - k, 3);
+const easeInCubic   = k => k * k * k;
+const easeInOutCubic= k => k < .5 ? 4*k*k*k : 1 - Math.pow(-2*k + 2, 3) / 2;
+const easeOutQuint  = k => 1 - Math.pow(1 - k, 5);
+const easeInOutQuint= k => k < .5 ? 16*k*k*k*k*k : 1 - Math.pow(-2*k + 2, 5) / 2;
+const easeOutBack   = k => { const c = 2.0; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+
+const tweens = new Set();
+function tween({ dur = 500, delay = 0, ease = easeOutCubic, onUpdate, onComplete }) {
+  tweens.add({ t0: performance.now() + delay, dur, ease, onUpdate, onComplete });
+}
+function updateTweens(now) {
+  for (const t of [...tweens]) {
+    if (now < t.t0) continue;
+    const raw = Math.min(1, (now - t.t0) / t.dur);
+    t.onUpdate && t.onUpdate(t.ease(raw), raw);
+    if (raw >= 1) { tweens.delete(t); t.onComplete && t.onComplete(); }
+  }
+}
+
+let toastTO;
+function toast(msg) {
+  const el = $('toast'); el.textContent = msg; el.classList.add('on');
+  clearTimeout(toastTO); toastTO = setTimeout(() => el.classList.remove('on'), 2800);
+}
+
+// Arabic numeral conversion
+function toArabicNum(n) {
+  const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+  return String(n).replace(/[0-9]/g, d => arabicDigits[d]);
+}
+function formatArabicTime(d) {
+  const h = String(d.getHours()).padStart(2,'0');
+  const m = String(d.getMinutes()).padStart(2,'0');
+  const s = String(d.getSeconds()).padStart(2,'0');
+  return `${toArabicNum(h)}:${toArabicNum(m)}:${toArabicNum(s)}`;
+}
+
+/* ============================================================
+   1 · Renderer, scene, environment, lights
+============================================================ */
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+} catch (e) {
+  $('fallback').style.display = 'grid'; throw e;
+}
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+$('stage').appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const studioBG = new THREE.Color('#0a1a14');
+scene.background = studioBG;
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.06).texture;
+
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 800);
+camera.position.set(48, 26, 152);
+
+const key = new THREE.DirectionalLight(0xfff5e0, 1.6); key.position.set(40, 65, 55); scene.add(key);
+const rim = new THREE.DirectionalLight(0x8ab8a0, 0.8); rim.position.set(-45, 15, -35); scene.add(rim);
+const warmFill = new THREE.PointLight(0xc9a84c, 0.5, 100); warmFill.position.set(0, 30, 40); scene.add(warmFill);
+
+// Soft studio occlusion blob
+function blobTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(128, 128, 10, 128, 128, 126);
+  g.addColorStop(0, 'rgba(0,0,0,.6)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+  return new THREE.CanvasTexture(c);
+}
+const shadowMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(95, 120),
+  new THREE.MeshBasicMaterial({ map: blobTexture(), transparent: true, opacity: .5, depthWrite: false })
+);
+shadowMesh.position.set(6, -10, -36);
+scene.add(shadowMesh);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(innerWidth > 820 ? 4.5 : 0, 0, -4);
+controls.enableDamping = true; controls.dampingFactor = .06;
+controls.enablePan = false;
+controls.minDistance = 45; controls.maxDistance = 170;
+controls.minPolarAngle = .3; controls.maxPolarAngle = 2.8;
+controls.autoRotate = false; controls.autoRotateSpeed = .55;
+controls.enabled = false;
+let idleTO;
+controls.addEventListener('start', () => { controls.autoRotate = false; clearTimeout(idleTO); });
+controls.addEventListener('end',   () => { idleTO = setTimeout(() => controls.autoRotate = true, 5000); });
+
+/* ============================================================
+   2 · Catalogue
+============================================================ */
+const BASE = 5200;
+const METALS = {
+  steel: { id: 'steel', name: 'ستانلس ستيل مصقول', color: 0xd6d8da, rough: .30, metal: 1.0, price: 0,    ref: 'ST', sw: '#cfd3d6' },
+  gold:  { id: 'gold',  name: 'ذهب أصفر ١٨ قيراط', color: 0xe8bd6d, rough: .24, metal: 1.0, price: 2800, ref: 'YG', sw: '#e0b264' },
+  rose:  { id: 'rose',  name: 'ذهب وردي ١٨ قيراط', color: 0xe0a37c, rough: .24, metal: 1.0, price: 2600, ref: 'RG', sw: '#dc9f77' },
+  black: { id: 'black', name: 'طلاء DLC أسود',     color: 0x2a2c30, rough: .42, metal: .9,  price: 900,  ref: 'BL', sw: '#25272a' },
+};
+const DIALS = [
+  { id: 'emerald',  name: 'زمرد عميق', base: '#0a3d2e', ink: '#e8dcc8', accent: '#c9a84c', sw: '#0d4a38', price: 0,   ref: 'EM' },
+  { id: 'midnight', name: 'ليل أزرق',   base: '#0d1930', ink: '#e9e4d8', accent: '#d2a24c', sw: '#14264d', price: 150, ref: 'MB' },
+  { id: 'onyx',     name: 'أونيكس أسود', base: '#0d0e10', ink: '#e9e4d8', accent: '#c9a84c', sw: '#111214', price: 100, ref: 'OB' },
+  { id: 'sand',     name: 'رملي ذهبي',  base: '#c4a87a', ink: '#2a2018', accent: '#1a5c42', sw: '#c9ad82', price: 260, ref: 'SD' },
+];
+const STRAPS = [
+  { id: 'leather',  name: 'جلد ساڤيانو',    price: 0,   ref: 'LT',
+    colors: [{ id: 'cognac', name: 'كونياك', hex: '#7a4520' }, { id: 'noir', name: 'أسود', hex: '#1a1a1e' }, { id: 'forest', name: 'أخضر غابي', hex: '#2e4034' }] },
+  { id: 'bracelet', name: 'سوار متكامل',    price: 520, ref: 'BR' },
+  { id: 'rubber',   name: 'مطاط FKM',       price: 110, ref: 'RB',
+    colors: [{ id: 'noir', name: 'أسود', hex: '#16171b' }, { id: 'craie', name: 'كريمي', hex: '#cfc8b8' }, { id: 'marine', name: 'بحري', hex: '#1c2c47' }] },
+];
+const state = { metal: 'steel', dial: 'emerald', strap: 'leather', leather: 'cognac', rubber: 'noir' };
+
+/* ============================================================
+   3 · Procedural textures — Islamic geometric patterns
+============================================================ */
+
+// Islamic 8-pointed star pattern
+function drawIslamicStar(ctx, cx, cy, outerR, innerR, color, rotation = 0) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rotation);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.2;
+  ctx.lineCap = 'round';
+  
+  // Two overlapping squares rotated 45°
+  for(let sq = 0; sq < 2; sq++){
+    ctx.save();
+    ctx.rotate(sq * Math.PI / 4);
+    ctx.beginPath();
+    for(let i = 0; i <= 4; i++){
+      const a = (i / 4) * Math.PI * 2;
+      const px = Math.cos(a) * outerR;
+      const py = Math.sin(a) * outerR;
+      if(i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    
+    // Inner square
+    ctx.beginPath();
+    for(let i = 0; i <= 4; i++){
+      const a = (i / 4) * Math.PI * 2;
+      const px = Math.cos(a) * innerR;
+      const py = Math.sin(a) * innerR;
+      if(i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  }
+  
+  // Connecting lines to form 8-pointed star
+  ctx.beginPath();
+  for(let i = 0; i < 8; i++){
+    const a = (i / 8) * Math.PI * 2;
+    const ox = Math.cos(a) * outerR;
+    const oy = Math.sin(a) * outerR;
+    const ix = Math.cos(a + Math.PI/8) * innerR;
+    const iy = Math.sin(a + Math.PI/8) * innerR;
+    if(i === 0) ctx.moveTo(ox, oy);
+    ctx.lineTo(ix, iy);
+    const nx = Math.cos(a + Math.PI/4) * outerR;
+    const ny = Math.sin(a + Math.PI/4) * outerR;
+    ctx.lineTo(nx, ny);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function makeDialTexture(d) {
+  const S = 1024 / 29, cx = 512, cy = 512;
+  const c = document.createElement('canvas'); c.width = c.height = 1024;
+  const x = c.getContext('2d');
+  x.fillStyle = d.base; x.fillRect(0, 0, 1024, 1024);
+
+  // Sunray brushing
+  x.save(); x.translate(cx, cy);
+  for (let i = 0; i < 950; i++) {
+    const a = Math.random() * TAU, r0 = 40 + Math.random() * 50;
+    x.strokeStyle = Math.random() < .5
+      ? `rgba(255,255,255,${Math.random() * .06})`
+      : `rgba(0,0,0,${Math.random() * .08})`;
+    x.lineWidth = 1 + Math.random();
+    x.beginPath();
+    x.moveTo(Math.cos(a) * r0, Math.sin(a) * r0);
+    x.lineTo(Math.cos(a) * 560, Math.sin(a) * 560);
+    x.stroke();
+  }
+  const shade = x.createRadialGradient(0, 0, 290, 0, 0, 540);
+  shade.addColorStop(0, 'rgba(0,0,0,0)'); shade.addColorStop(1, 'rgba(0,0,0,.35)');
+  x.fillStyle = shade; x.beginPath(); x.arc(0, 0, 540, 0, TAU); x.fill();
+  x.restore();
+
+  // Islamic geometric star pattern in center
+  const starAlpha = d.id === 'emerald' ? 'rgba(201,168,76,.12)' : 'rgba(201,168,76,.08)';
+  drawIslamicStar(x, cx, cy, 180, 100, starAlpha, 0);
+  drawIslamicStar(x, cx, cy, 120, 65, starAlpha, Math.PI / 8);
+  drawIslamicStar(x, cx, cy, 60, 30, starAlpha, Math.PI / 16);
+
+  // Outer ring decoration
+  x.save(); x.translate(cx, cy);
+  x.strokeStyle = 'rgba(201,168,76,.15)';
+  x.lineWidth = 1.5;
+  x.beginPath(); x.arc(0, 0, 480, 0, TAU); x.stroke();
+  x.beginPath(); x.arc(0, 0, 460, 0, TAU); x.stroke();
+  
+  // Small decorative dots around the ring
+  for(let i = 0; i < 36; i++){
+    const a = (i / 36) * TAU;
+    x.fillStyle = 'rgba(201,168,76,.2)';
+    x.beginPath(); x.arc(Math.cos(a)*470, Math.sin(a)*470, 2, 0, TAU); x.fill();
+  }
+  x.restore();
+
+  // Minute track
+  x.save(); x.translate(cx, cy); x.strokeStyle = d.ink; x.lineCap = 'round';
+  for (let m = 0; m < 60; m++) {
+    const a = m / 60 * TAU, long = m % 5 === 0;
+    const r0 = (long ? 13.3 : 13.58) * S, r1 = 14.15 * S;
+    x.lineWidth = long ? 2.6 : 1.4;
+    x.beginPath();
+    x.moveTo(Math.sin(a) * r0, -Math.cos(a) * r0);
+    x.lineTo(Math.sin(a) * r1, -Math.cos(a) * r1);
+    x.stroke();
+  }
+  x.restore();
+
+  // Brand text in Arabic — using fillText directly for proper Arabic rendering
+  x.fillStyle = d.ink; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = '700 52px "Amiri", serif';
+  x.fillText('أُفُق', cx, cy - 8.2 * S);
+  x.font = '400 22px "IBM Plex Sans Arabic", sans-serif';
+  x.fillText('أوتوماتيكية', cx, cy - 6.45 * S);
+  x.font = '400 20px "IBM Plex Sans Arabic", sans-serif';
+  x.fillText('هلال', cx, cy + 4.42 * S);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+  tex.repeat.set(1 / 29, 1 / 29); tex.offset.set(.5, .5);
+  return tex;
+}
+
+function makeMoonTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d'), cx = 128, cy = 128, r = 88;
+  x.fillStyle = '#0e1630'; x.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 46; i++) {
+    x.fillStyle = `rgba(233,228,216,${.1 + Math.random() * .45})`;
+    x.beginPath(); x.arc(Math.random() * 256, Math.random() * 256, .5 + Math.random() * 1.1, 0, TAU); x.fill();
+  }
+  const synodic = 29.530588853;
+  const ref = Date.UTC(2000, 0, 6, 18, 14);
+  const days = (new Date().getTime() - ref) / 86400000;
+  const p = ((days % synodic) + synodic) % synodic / synodic;
+  const illum = (1 - Math.cos(p * TAU)) / 2, waxing = p < .5;
+  const GOLD = '#e0b45f', DARK = '#161c33';
+  x.save(); x.beginPath(); x.arc(cx, cy, r, 0, TAU); x.clip();
+  x.fillStyle = DARK; x.fillRect(0, 0, 256, 256);
+  x.fillStyle = GOLD; x.beginPath();
+  if (waxing) x.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2);
+  else        x.arc(cx, cy, r,  Math.PI / 2, Math.PI * 1.5);
+  x.fill();
+  const rx = Math.abs(Math.cos(p * TAU)) * r;
+  x.beginPath(); x.ellipse(cx, cy, rx, r, 0, 0, TAU);
+  x.fillStyle = illum >= .5 ? GOLD : DARK; x.fill();
+  x.fillStyle = 'rgba(120,90,30,.22)';
+  [[100,100,13],[150,120,9],[118,155,16],[160,165,7],[92,140,6]].forEach(([mx,my,mr]) => {
+    x.beginPath(); x.arc(mx, my, mr, 0, TAU); x.fill();
+  });
+  x.restore();
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  return tex;
+}
+
+function makeDateTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const x = c.getContext('2d');
+  x.fillStyle = '#f2efe8'; x.fillRect(0, 0, 128, 128);
+  x.fillStyle = '#17181b'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = '700 74px "Amiri", serif';
+  x.fillText(toArabicNum(new Date().getDate()), 64, 70);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  return tex;
+}
+
+function makeCasebackTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 512;
+  const x = c.getContext('2d');
+  x.translate(256, 256); x.scale(-1, 1);
+  x.fillStyle = '#c9c9c9'; x.fillRect(-256, -256, 512, 512);
+  for (let r = 28; r < 250; r += 2) {
+    x.strokeStyle = Math.random() < .5 ? `rgba(255,255,255,${Math.random() * .12})` : `rgba(0,0,0,${Math.random() * .1})`;
+    x.lineWidth = 1 + Math.random();
+    x.beginPath(); x.arc(0, 0, r, 0, TAU); x.stroke();
+  }
+  x.fillStyle = 'rgba(60,60,60,.85)';
+  for (let i = 0; i < 6; i++) {
+    const a = i / 6 * TAU + .3;
+    const sx = Math.cos(a) * 150, sy = Math.sin(a) * 150;
+    x.beginPath(); x.arc(sx, sy, 11, 0, TAU); x.fill();
+    x.strokeStyle = '#9a9a9a'; x.lineWidth = 2.4;
+    x.beginPath(); x.moveTo(sx - 7, sy); x.lineTo(sx + 7, sy); x.stroke();
+  }
+  x.strokeStyle = 'rgba(70,70,70,.9)'; x.lineWidth = 2;
+  x.beginPath(); x.arc(0, 0, 108, 0, TAU); x.stroke();
+  x.fillStyle = '#4c4c4c'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = '700 44px "Amiri", serif';
+  x.fillText('أ-٧١', 0, -4);
+  x.font = '500 17px "IBM Plex Sans Arabic", sans-serif';
+  x.fillText('أوتوماتيكية', 0, 34);
+  // Circular text around the edge — simplified for Arabic
+  x.font = '600 20px "IBM Plex Sans Arabic", sans-serif';
+  x.fillStyle = 'rgba(70,70,70,.8)';
+  const circText = 'أُفُق · طَرَابُلُس · هِلَال · ٥٠ م';
+  const radius = 208;
+  const totalChars = circText.length;
+  const anglePerChar = TAU / totalChars;
+  for (let i = 0; i < totalChars; i++) {
+    const char = circText[i];
+    const angle = -Math.PI / 2 + i * anglePerChar;
+    x.save();
+    x.rotate(angle);
+    x.fillText(char, 0, -radius);
+    x.restore();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+  return tex;
+}
+
+function makeGrainTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d');
+  x.fillStyle = '#808080'; x.fillRect(0, 0, 256, 256);
+  x.globalAlpha = .16; x.strokeStyle = '#fff';
+  for (let i = -256; i < 512; i += 5) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + 256, 256); x.stroke(); }
+  x.strokeStyle = '#000';
+  for (let i = -256; i < 512; i += 5) { x.beginPath(); x.moveTo(i + 256, 0); x.lineTo(i, 256); x.stroke(); }
+  x.globalAlpha = 1;
+  for (let i = 0; i < 2600; i++) {
+    x.fillStyle = Math.random() < .5 ? 'rgba(255,255,255,.25)' : 'rgba(0,0,0,.25)';
+    x.fillRect(Math.random() * 256, Math.random() * 256, 1.4, 1.4);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+const grainTex = makeGrainTexture();
+
+/* ============================================================
+   4 · Materials
+============================================================ */
+const roleRough = (role, r) => role === 'polished' ? r * .35 : role === 'brushed' ? r + .14 : role === 'caseback' ? r + .08 : r;
+const metalMats = [];
+function makeMetalMat(role, extra = {}) {
+  const p = METALS[state.metal];
+  const m = new THREE.MeshPhysicalMaterial({
+    color: p.color, metalness: p.metal, roughness: roleRough(role, p.rough),
+    clearcoat: role === 'polished' ? .6 : .15, clearcoatRoughness: .3, ...extra
+  });
+  m.userData.role = role; metalMats.push(m);
+  return m;
+}
+const caseMat     = makeMetalMat('std');
+const polishedMat = makeMetalMat('polished');
+const brushedMat  = makeMetalMat('brushed');
+const casebackMat = makeMetalMat('caseback', { map: makeCasebackTexture() });
+
+const secMat = new THREE.MeshStandardMaterial({ color: 0xd2a24c, metalness: .6, roughness: .35 });
+const lumeMat = new THREE.MeshStandardMaterial({ color: 0xdfe8d8, emissive: 0x8fae8f, emissiveIntensity: .3, roughness: .55 });
+const rehautMat = new THREE.MeshStandardMaterial({ color: 0x14161a, metalness: .6, roughness: .5, side: THREE.DoubleSide });
+const leatherMat = new THREE.MeshStandardMaterial({ color: 0x7a4520, roughness: .72, bumpMap: grainTex, bumpScale: .08 });
+const rubberMat = new THREE.MeshPhysicalMaterial({ color: 0x16171b, roughness: .46, clearcoat: .35, clearcoatRoughness: .5, bumpMap: grainTex, bumpScale: .03 });
+const crystalMat = new THREE.MeshPhysicalMaterial({
+  transmission: 1, thickness: 2.5, roughness: .04, ior: 1.52,
+  clearcoat: 1, clearcoatRoughness: .06, envMapIntensity: 1.25, specularIntensity: 1
+});
+const crystalFakeMat = new THREE.MeshPhysicalMaterial({
+  transparent: true, opacity: .16, roughness: .06, metalness: 0, clearcoat: 1, envMapIntensity: 1.6, depthWrite: false
+});
+const moonMat = new THREE.MeshStandardMaterial({ map: makeMoonTexture(), roughness: .6, metalness: .2 });
+const dateMat = new THREE.MeshStandardMaterial({ map: makeDateTexture(), roughness: .55, metalness: .05 });
+
+/* ============================================================
+   5 · Watch build
+============================================================ */
+const watchRoot = new THREE.Group(); scene.add(watchRoot);
+const headGroup = new THREE.Group(); watchRoot.add(headGroup);
+
+function lathe(points, seg = 96) {
+  return new THREE.LatheGeometry(points.map(p => new THREE.Vector2(p[0], p[1])), seg);
+}
+
+// --- case & bezel (lathe around Z) ---
+const caseMesh = new THREE.Mesh(lathe([
+  [0, -6.4], [7, -6.4], [12.5, -6.0], [16.5, -5.2], [19.2, -4.0],
+  [20.4, -2.2], [20.8, 0], [20.8, 1.8], [20.3, 3.0], [18.5, 3.6], [15.1, 3.7]
+]), caseMat);
+caseMesh.rotation.x = Math.PI / 2;
+headGroup.add(caseMesh);
+
+const bezelMesh = new THREE.Mesh(lathe([
+  [15.15, 3.6], [19.3, 3.8], [20.6, 4.6], [20.0, 5.65], [17.4, 6.5], [15.15, 6.6], [15.15, 3.6]
+]), polishedMat);
+bezelMesh.rotation.x = Math.PI / 2;
+headGroup.add(bezelMesh);
+
+// --- engraved caseback ---
+const casebackMesh = new THREE.Mesh(new THREE.CircleGeometry(19.9, 96), casebackMat);
+casebackMesh.rotation.y = Math.PI; casebackMesh.position.z = -6.36;
+headGroup.add(casebackMesh);
+
+// --- rehaut ---
+const rehaut = new THREE.Mesh(new THREE.CylinderGeometry(15.15, 14.55, 2.1, 96, 1, true), rehautMat);
+rehaut.rotation.x = Math.PI / 2; rehaut.position.z = 4.45;
+headGroup.add(rehaut);
+
+// --- dial with cut-outs ---
+const dialShape = new THREE.Shape();
+dialShape.absarc(0, 0, 14.5, 0, TAU, false);
+const dateHole = new THREE.Path();
+dateHole.moveTo(8.3, 1.8); dateHole.lineTo(12.9, 1.8);
+dateHole.lineTo(12.9, -1.8); dateHole.lineTo(8.3, -1.8); dateHole.closePath();
+const moonHole = new THREE.Path();
+moonHole.absarc(0, -8.2, 3.2, 0, TAU, true);
+dialShape.holes.push(dateHole, moonHole);
+const dialGeo = new THREE.ShapeGeometry(dialShape, 48);
+const DIAL_Z = 3.4;
+let dialMesh = null;
+
+function roundedRect(w, h, r) {
+  const s = new THREE.Shape(), x = -w / 2, y = -h / 2;
+  s.moveTo(x + r, y);
+  s.lineTo(x + w - r, y); s.absarc(x + w - r, y + r, r, -Math.PI / 2, 0, false);
+  s.lineTo(x + w, y + h - r); s.absarc(x + w - r, y + h - r, r, 0, Math.PI / 2, false);
+  s.lineTo(x + r, y + h); s.absarc(x + r, y + h - r, r, Math.PI / 2, Math.PI, false);
+  s.lineTo(x, y + r); s.absarc(x + r, y + r, r, Math.PI, Math.PI * 1.5, false);
+  return s;
+}
+const dateFrameMesh = new THREE.Mesh(
+  (() => {
+    const f = roundedRect(5.9, 4.9, .7);
+    f.holes.push(roundedRect(4.6, 3.6, .45));
+    return new THREE.ExtrudeGeometry(f, { depth: .3, bevelEnabled: false });
+  })(), polishedMat);
+dateFrameMesh.position.set(10.6, 0, DIAL_Z);
+headGroup.add(dateFrameMesh);
+
+const dateDisc = new THREE.Mesh(new THREE.CircleGeometry(3.05, 40), dateMat);
+dateDisc.position.set(10.6, 0, 3.22);
+headGroup.add(dateDisc);
+
+const moonDisc = new THREE.Mesh(new THREE.CircleGeometry(3.42, 48), moonMat);
+moonDisc.position.set(0, -8.2, 3.22);
+headGroup.add(moonDisc);
+const moonRing = new THREE.Mesh(new THREE.TorusGeometry(3.3, .24, 14, 64), polishedMat);
+moonRing.position.set(0, -8.2, 3.5);
+headGroup.add(moonRing);
+
+// --- applied indices ---
+{
+  const baton = new THREE.BoxGeometry(1.5, 2.4, .7);
+  for (let h = 1; h <= 12; h++) {
+    if (h === 3 || h === 6) continue;
+    const th = h / 12 * TAU;
+    const offs = h === 12 ? [-1.15, 1.15] : [0];
+    offs.forEach(o => {
+      const m = new THREE.Mesh(baton, polishedMat);
+      m.position.set(Math.sin(th) * 12.3 + Math.cos(th) * o, Math.cos(th) * 12.3 - Math.sin(th) * o, DIAL_Z + .35);
+      m.rotation.z = -th;
+      headGroup.add(m);
+    });
+  }
+}
+
+// --- hands (dauphine blades + lume pips) ---
+function blade(len, wid, tail) {
+  const s = new THREE.Shape();
+  s.moveTo(0, len); s.lineTo(wid, 0); s.lineTo(0, -tail); s.lineTo(-wid, 0); s.closePath();
+  return new THREE.ExtrudeGeometry(s, { depth: .22, bevelEnabled: true, bevelThickness: .12, bevelSize: .1, bevelSegments: 1 });
+}
+function lumePip(y) {
+  const p = new THREE.Mesh(new THREE.CylinderGeometry(.5, .5, .16, 16), lumeMat);
+  p.rotation.x = Math.PI / 2; p.position.set(0, y, .42);
+  return p;
+}
+const hourGroup = new THREE.Group();
+hourGroup.position.z = 4.05;
+hourGroup.add(new THREE.Mesh(blade(8.6, 1.05, 2.6), polishedMat), lumePip(6.1));
+headGroup.add(hourGroup);
+
+const minGroup = new THREE.Group();
+minGroup.position.z = 4.35;
+minGroup.add(new THREE.Mesh(blade(13.2, .85, 2.8), polishedMat), lumePip(9.6));
+headGroup.add(minGroup);
+
+const secGroup = new THREE.Group();
+secGroup.position.z = 4.6;
+{
+  const baton = new THREE.Mesh(new THREE.BoxGeometry(.3, 18.6, .2), secMat);
+  baton.position.y = 5.5;
+  const cw = new THREE.Mesh(new THREE.TorusGeometry(.85, .22, 8, 24), secMat);
+  cw.position.y = -4.6;
+  secGroup.add(baton, cw);
+}
+headGroup.add(secGroup);
+
+const cap1 = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.05, .45, 24), polishedMat);
+cap1.rotation.x = Math.PI / 2; cap1.position.z = 4.85;
+const cap2 = new THREE.Mesh(new THREE.CylinderGeometry(.5, .5, .3, 20), secMat);
+cap2.rotation.x = Math.PI / 2; cap2.position.z = 5.1;
+headGroup.add(cap1, cap2);
+
+// --- crystal (domed, transmissive) ---
+const crystalGeo = lathe([[0, 2.0], [4, 1.87], [8, 1.46], [11, .98], [13.5, .46], [15.0, .09], [15.4, 0]], 80);
+const crystalMesh = new THREE.Mesh(crystalGeo, crystalMat);
+crystalMesh.rotation.x = Math.PI / 2; crystalMesh.position.z = 5.6;
+headGroup.add(crystalMesh);
+
+// --- crown at 3 o'clock ---
+{
+  const crown = new THREE.Group(); crown.position.set(22.4, 0, -.6);
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(2.7, 2.7, 2.6, 28), caseMat);
+  body.rotation.z = Math.PI / 2;
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(1.9, 2.55, .8, 28), polishedMat);
+  cap.rotation.z = Math.PI / 2; cap.position.x = 1.7;
+  crown.add(body, cap);
+  [-0.7, 0, 0.7].forEach(o => {
+    const g = new THREE.Mesh(new THREE.TorusGeometry(2.7, .17, 8, 32), caseMat);
+    g.rotation.y = Math.PI / 2; g.position.x = o;
+    crown.add(g);
+  });
+  headGroup.add(crown);
+}
+
+// --- lugs ---
+{
+  const lugGeo = new RoundedBoxGeometry(3.6, 7.6, 3.4, 3, 1.1);
+  [[12.9, 19.4, -.9, -.3], [-12.9, 19.4, -.9, -.3], [12.9, -19.4, -.9, .3], [-12.9, -19.4, -.9, .3]]
+    .forEach(([x, y, z, rx]) => {
+      const l = new THREE.Mesh(lugGeo, caseMat);
+      l.position.set(x, y, z); l.rotation.x = rx;
+      headGroup.add(l);
+    });
+}
+
+/* ============================================================
+   6 · Straps — wrapped around an invisible wrist
+============================================================ */
+const strapRoot = new THREE.Group(); watchRoot.add(strapRoot);
+const topCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0, 21.2, -0.6), new THREE.Vector3(0, 26.5, -3.4),
+  new THREE.Vector3(0, 30.8, -9.5), new THREE.Vector3(0, 31.8, -17.5),
+  new THREE.Vector3(0, 29.2, -25),  new THREE.Vector3(0, 23.5, -30.5),
+  new THREE.Vector3(0, 16.5, -33.2), new THREE.Vector3(0, 10.5, -33.6)
+]);
+const botCurve = new THREE.CatmullRomCurve3(topCurve.points.map(p => new THREE.Vector3(0, -p.y, p.z)));
+const SIDE = new THREE.Vector3(1, 0, 0), NRM = new THREE.Vector3(), TMPM = new THREE.Matrix4();
+
+function orientOnCurve(obj, curve, u) {
+  const p = curve.getPointAt(u), tan = curve.getTangentAt(u);
+  NRM.crossVectors(SIDE, tan).normalize();
+  TMPM.makeBasis(SIDE, tan, NRM);
+  obj.position.copy(p); obj.quaternion.setFromRotationMatrix(TMPM);
+}
+
+function strapGeometry(curve, width, thick, steps = 72) {
+  const N = 36, hw = width / 2, ht = thick / 2, e = 4;
+  const pos = [], uv = [], idx = [];
+  const p = new THREE.Vector3(), tan = new THREE.Vector3();
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    curve.getPointAt(t, p); curve.getTangentAt(t, tan);
+    NRM.crossVectors(SIDE, tan).normalize();
+    for (let j = 0; j < N; j++) {
+      const a = j / N * TAU, c = Math.cos(a), s = Math.sin(a);
+      const u = hw * Math.sign(c) * Math.pow(Math.abs(c), 2 / e);
+      const v = ht * Math.sign(s) * Math.pow(Math.abs(s), 2 / e);
+      pos.push(p.x + SIDE.x * u + NRM.x * v, p.y + SIDE.y * u + NRM.y * v, p.z + SIDE.z * u + NRM.z * v);
+      uv.push(j / N * 8, t * curve.getLength() / 8);
+    }
+  }
+  for (let i = 0; i < steps; i++) for (let j = 0; j < N; j++) {
+    const a2 = i * N + j, b = (i + 1) * N + j, c2 = (i + 1) * N + (j + 1) % N, d = i * N + (j + 1) % N;
+    idx.push(a2, b, c2, a2, c2, d);
+  }
+  const wc = (steps + 1) * N;
+  const p0 = curve.getPointAt(0), p1 = curve.getPointAt(1);
+  pos.push(p0.x, p0.y, p0.z); uv.push(.5, 0);
+  pos.push(p1.x, p1.y, p1.z); uv.push(.5, 1);
+  for (let j = 0; j < N; j++) idx.push(wc, j, (j + 1) % N);
+  for (let j = 0; j < N; j++) idx.push(wc + 1, steps * N + (j + 1) % N, steps * N + j);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx); g.computeVertexNormals();
+  g.userData.shared = true;
+  return g;
+}
+const strapGeoCache = {};
+function getStrapGeo(type, curve) {
+  const key = type + (curve === topCurve ? 't' : 'b');
+  return strapGeoCache[key] || (strapGeoCache[key] = strapGeometry(curve, 22, type === 'leather' ? 2.7 : 2.9));
+}
+
+const linkCenterGeo = new RoundedBoxGeometry(9.0, 4.1, 3.0, 3, .9);  linkCenterGeo.userData.shared = true;
+const linkSideGeo   = new RoundedBoxGeometry(5.9, 4.1, 2.7, 3, .9);  linkSideGeo.userData.shared = true;
+const claspGeo      = new RoundedBoxGeometry(21.4, 9.5, 3.1, 3, 1.2); claspGeo.userData.shared = true;
+const buckleGeo     = new THREE.TorusGeometry(4.8, .85, 12, 28);     buckleGeo.userData.shared = true;
+const prongGeo      = new THREE.CylinderGeometry(.32, .32, 10.6, 10); prongGeo.userData.shared = true;
+const keeperGeo     = new THREE.TorusGeometry(11.8, .7, 10, 40);     keeperGeo.userData.shared = true;
+
+function makePivot(anchor) {
+  const pivot = new THREE.Group(); pivot.position.copy(anchor);
+  const content = new THREE.Group(); content.position.copy(anchor).negate();
+  pivot.add(content); strapRoot.add(pivot);
+  return { pivot, content };
+}
+function disposeGroup(g) {
+  g.traverse(o => { if (o.isMesh && o.geometry && !o.geometry.userData.shared) o.geometry.dispose(); });
+}
+
+let strapPivots = [], swapping = false, pendingStrap = null;
+
+function buildStrap(type, animate) {
+  const anchors = [new THREE.Vector3(0, 21.2, -.6), new THREE.Vector3(0, -21.2, -.6)];
+  const curves = [topCurve, botCurve];
+  curves.forEach((curve, ci) => {
+    const { pivot, content } = makePivot(anchors[ci]);
+    if (type === 'bracelet') {
+      const L = curve.getLength(), pitch = 5.05, links = [];
+      for (let d = 1.4; d < L - 8; d += pitch) {
+        const link = new THREE.Group(); orientOnCurve(link, curve, d / L);
+        const c = new THREE.Mesh(linkCenterGeo, polishedMat);
+        const l = new THREE.Mesh(linkSideGeo, brushedMat);   l.position.x = -(4.5 + .35 + 2.95);
+        const r = new THREE.Mesh(linkSideGeo, brushedMat);   r.position.x =  (4.5 + .35 + 2.95);
+        link.add(c, l, r); content.add(link); links.push(link);
+      }
+      const clasp = new THREE.Group(); orientOnCurve(clasp, curve, (L - 4.2) / L);
+      clasp.add(new THREE.Mesh(claspGeo, polishedMat)); content.add(clasp); links.push(clasp);
+      links.forEach((lk, i) => {
+        if (!animate) { lk.scale.setScalar(1); return; }
+        lk.scale.setScalar(.001);
+        tween({ dur: 420, delay: 120 + i * 36, ease: easeOutBack, onUpdate: v => lk.scale.setScalar(Math.max(v, .001)) });
+      });
+    } else {
+      const mesh = new THREE.Mesh(getStrapGeo(type, curve), type === 'leather' ? leatherMat : rubberMat);
+      content.add(mesh);
+      if (ci === 1) {
+        const bk = new THREE.Group(); orientOnCurve(bk, curve, 1);
+        const tan = curve.getTangentAt(1); bk.position.addScaledVector(tan, 2.1);
+        const ring = new THREE.Mesh(buckleGeo, polishedMat); ring.scale.set(1.25, 1, .8);
+        const prong = new THREE.Mesh(prongGeo, polishedMat); prong.rotation.z = Math.PI / 2; prong.position.z = .3;
+        bk.add(ring, prong); content.add(bk);
+      } else {
+        const kp = new THREE.Group(); orientOnCurve(kp, curve, .86);
+        const k = new THREE.Mesh(keeperGeo, type === 'leather' ? leatherMat : rubberMat);
+        k.scale.set(1.02, .18, 1); k.rotation.x = Math.PI / 2;
+        kp.add(k); content.add(kp);
+      }
+      if (animate) {
+        pivot.scale.setScalar(.001);
+        tween({ dur: 650, delay: 100 + ci * 130, ease: easeOutBack, onUpdate: v => pivot.scale.setScalar(Math.max(v, .001)) });
+      }
+    }
+    strapPivots.push({ pivot, content });
+  });
+}
+
+function changeStrap(id) {
+  state.strap = id; updateStrapUI(); updatePrice();
+  if (swapping) { pendingStrap = id; return; }
+  swapping = true;
+  const old = strapPivots; strapPivots = [];
+  old.forEach((p, i) => tween({
+    dur: 300, delay: i * 40, ease: easeInCubic,
+    onUpdate: k => p.pivot.scale.setScalar(Math.max(1 - k * .999, .001)),
+    onComplete: () => { strapRoot.remove(p.pivot); disposeGroup(p.pivot); }
+  }));
+  tween({
+    dur: 620, ease: k => k,
+    onUpdate: k => headGroup.scale.setScalar(1 + Math.sin(k * Math.PI) * .02),
+    onComplete: () => headGroup.scale.setScalar(1)
+  });
+  setTimeout(() => {
+    buildStrap(state.strap, true); swapping = false;
+    if (pendingStrap && pendingStrap !== state.strap) { const p = pendingStrap; pendingStrap = null; changeStrap(p); }
+  }, 380);
+}
+
+/* ============================================================
+   7 · Config setters
+============================================================ */
+function tweenColor(col, target, dur) {
+  const from = col.clone(), to = new THREE.Color(target);
+  tween({ dur, ease: easeOutCubic, onUpdate: k => col.lerpColors(from, to, k) });
+}
+function setMetal(id, silent) {
+  if (!METALS[id]) return;
+  state.metal = id;
+  const p = METALS[id];
+  const anim = ++metalAnim;
+  const targetCol = new THREE.Color(p.color);
+
+  // Capture starting values on every call
+  metalMats.forEach(m => {
+    m.userData._orig = { color: m.color.clone(), rough: m.roughness, metal: m.metalness };
+    m.emissive = new THREE.Color(0xc9a84c);
+  });
+
+  const skip = () => anim !== metalAnim;
+
+  // Phase 1: golden flash so the change is immediately visible
+  tween({ dur: 280, ease: easeOutCubic, onUpdate: k => {
+    if (skip()) return;
+    metalMats.forEach(m => { m.emissiveIntensity = k * .18; });
+  }});
+
+  // Phase 2: transition color / roughness / metalness to the new metal
+  tween({ dur: 650, delay: 150, ease: easeInOutCubic, onUpdate: k => {
+    if (skip()) return;
+    metalMats.forEach(m => {
+      const o = m.userData._orig;
+      m.color.lerpColors(o.color, targetCol, k);
+      m.roughness = lerp(o.rough, roleRough(m.userData.role, p.rough), k);
+      m.metalness = lerp(o.metal, p.metal, k);
+      m.emissiveIntensity = (1 - k) * .18;
+    });
+  }, onComplete: () => {
+    if (skip()) return;
+    metalMats.forEach(m => {
+      m.color.copy(targetCol);
+      m.roughness = roleRough(m.userData.role, p.rough);
+      m.metalness = p.metal;
+      m.emissiveIntensity = 0;
+    });
+  }});
+
+  if (!silent) { updateMetalUI(true); updatePrice(); }
+}
+let metalAnim = 0;
+function setDial(id, initial) {
+  state.dial = id;
+  const d = DIALS.find(x => x.id === id);
+  const mat = new THREE.MeshStandardMaterial({ map: makeDialTexture(d), metalness: .55, roughness: .4, transparent: true, opacity: 0 });
+  const mesh = new THREE.Mesh(dialGeo, mat);
+  mesh.position.z = DIAL_Z; mesh.renderOrder = 1;
+  headGroup.add(mesh);
+  if (initial) { mat.opacity = 1; mat.transparent = false; }
+  else tween({ dur: 420, ease: easeOutCubic, onUpdate: k => mat.opacity = k,
+    onComplete: () => { mat.transparent = false; mat.needsUpdate = true; } });
+  if (dialMesh) {
+    const om = dialMesh.material, old = dialMesh;
+    tween({ dur: 380, ease: easeInCubic, onUpdate: k => om.opacity = 1 - k,
+      onComplete: () => { headGroup.remove(old); om.map.dispose(); om.dispose(); } });
+  }
+  dialMesh = mesh;
+  if (initial) secMat.color.set(d.accent); else tweenColor(secMat.color, d.accent, 500);
+  if (!initial) { updateDialUI(); updatePrice(); }
+}
+function setStrapColor(kind, id) {
+  const s = STRAPS.find(x => x.id === kind);
+  const c = s.colors.find(c => c.id === id);
+  state[kind] = id;
+  tweenColor(kind === 'leather' ? leatherMat.color : rubberMat.color, c.hex, 420);
+  updateStrapUI();
+}
+
+let priceShown = 0;
+function animatePrice(n) {
+  const from = priceShown; priceShown = n;
+  tween({ dur: 620, ease: easeOutCubic, onUpdate: k => {
+    $('priceLine').textContent = '€' + Math.round(from + (n - from) * k).toLocaleString('en-US');
+  }});
+}
+function updatePrice() {
+  const d = DIALS.find(x => x.id === state.dial), s = STRAPS.find(x => x.id === state.strap);
+  animatePrice(BASE + METALS[state.metal].price + d.price + s.price);
+  $('refLine').textContent = `المرجع: أ-٧١·${METALS[state.metal].ref}·${d.ref}·${s.ref}`;
+}
+
+/* ============================================================
+   8 · Panel UI
+============================================================ */
+function buildSwatches(el, items, onPick, isSel) {
+  el.innerHTML = '';
+  items.forEach((it, i) => {
+    const b = document.createElement('button');
+    b.className = 'swatch' + (isSel(it) ? ' sel' : '');
+    b.style.background = it.sw || it.hex; b.title = it.name; b.setAttribute('aria-label', it.name);
+    b.style.opacity = '0';
+    b.style.transform = 'scale(0.8)';
+    b.onclick = () => onPick(it.id);
+    el.appendChild(b);
+    // Staggered entrance animation
+    setTimeout(() => {
+      b.style.transition = 'opacity .3s, transform .3s';
+      b.style.opacity = '1';
+      b.style.transform = 'scale(1)';
+    }, i * 60);
+  });
+}
+function updateMetalUI(animate) {
+  if (animate) {
+    $('metalName').style.opacity = '0';
+    $('metalName').style.transform = 'translateY(8px)';
+    $('metalName').style.transition = 'opacity .3s, transform .3s';
+    setTimeout(() => {
+      buildSwatches($('metalSw'), Object.values(METALS), id => setMetal(id), it => it === METALS[state.metal]);
+      $('metalName').textContent = METALS[state.metal].name;
+      $('metalName').style.opacity = '1';
+      $('metalName').style.transform = 'translateY(0)';
+    }, 200);
+  } else {
+    buildSwatches($('metalSw'), Object.values(METALS), id => setMetal(id), it => it === METALS[state.metal]);
+    $('metalName').textContent = METALS[state.metal].name;
+  }
+}
+function updateDialUI() {
+  $('dialName').style.opacity = '0';
+  $('dialName').style.transform = 'translateY(8px)';
+  $('dialName').style.transition = 'opacity .3s, transform .3s';
+  setTimeout(() => {
+    buildSwatches($('dialSw'), DIALS, id => setDial(id), it => it.id === state.dial);
+    $('dialName').textContent = DIALS.find(d => d.id === state.dial).name;
+    $('dialName').style.opacity = '1';
+    $('dialName').style.transform = 'translateY(0)';
+  }, 200);
+}
+function updateStrapUI() {
+  const rows = $('strapRows'); rows.innerHTML = '';
+  STRAPS.forEach(s => {
+    const row = document.createElement('button');
+    row.className = 'strap-row' + (state.strap === s.id ? ' sel' : '');
+    row.innerHTML = `<span class="s-name">${s.name}</span><span class="s-price">${s.price ? '+ €' + s.price.toLocaleString('en-US') : 'مُشَمَّل'}</span>`;
+    row.onclick = () => { if (state.strap !== s.id) changeStrap(s.id); };
+    rows.appendChild(row);
+    if (s.colors) {
+      const sub = document.createElement('div');
+      sub.className = 'sub-colors' + (state.strap === s.id ? '' : ' hide');
+      s.colors.forEach(c => {
+        const b = document.createElement('button');
+        b.className = 'mini' + (state[s.id] === c.id ? ' sel' : '');
+        b.style.background = c.hex; b.title = c.name;
+        b.onclick = () => setStrapColor(s.id, c.id);
+        sub.appendChild(b);
+      });
+      rows.appendChild(sub);
+    }
+  });
+}
+
+/* ============================================================
+   9 · Complication hover-glow
+============================================================ */
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+let pointerOn = false, dragging = false, hoverTarget = null;
+
+function hitMesh(geo, pos) {
+  const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ visible: false }));
+  m.position.copy(pos); headGroup.add(m); return m;
+}
+const compTargets = [
+  { key: 'date',  mesh: hitMesh(new THREE.CircleGeometry(3.4, 24), new THREE.Vector3(10.6, 0, 4.7)), r: 4.2 },
+  { key: 'moon',  mesh: hitMesh(new THREE.CircleGeometry(4.0, 24), new THREE.Vector3(0, -8.2, 4.7)), r: 4.6 },
+  { key: 'crown', mesh: hitMesh(new THREE.CylinderGeometry(3.5, 3.5, 6, 12), new THREE.Vector3(22.4, 0, -.6)), r: 3.9 },
+];
+compTargets.find(t => t.key === 'crown').mesh.rotation.z = Math.PI / 2;
+
+const glowRing = new THREE.Mesh(
+  new THREE.RingGeometry(.9, 1, 64),
+  new THREE.MeshBasicMaterial({ color: 0xd2a24c, transparent: true, opacity: 0, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false })
+);
+glowRing.visible = false; scene.add(glowRing);
+
+function complicationText(key) {
+  const n = new Date();
+  if (key === 'date') return {
+    name: 'التاريخ الهجري', val: n.toLocaleDateString('ar-SA', { weekday: 'long', day: 'numeric', month: 'long' }),
+    sub: 'قفزة لحظية عند منتصف الليل' };
+  if (key === 'moon') {
+    const synodic = 29.530588853;
+    const ref = Date.UTC(2000, 0, 6, 18, 14);
+    const days = (n.getTime() - ref) / 86400000;
+    const p = ((days % synodic) + synodic) % synodic / synodic;
+    const names = ['هلال جديد','هلال مكتمل','ربع أول','متقدم','بدر','متناقص','ربع أخير','هلال متناقص'];
+    const illum = Math.round((1 - Math.cos(p * TAU)) / 2 * 100);
+    return { name: 'طور القمر', val: `${names[Math.round(p * 8) % 8]} · ${toArabicNum(illum)}٪ إضاءة`,
+      sub: 'محسوب لسماء الليلة' }; }
+  return { name: 'تاج لولبي', val: 'مقاومة للماء ٥ أجواء · ٥٠ متر',
+    sub: 'مُوقَّع بشعار أُفُق' };
+}
+function refreshTooltip() {
+  if (!hoverTarget) return;
+  const t = complicationText(hoverTarget.key);
+  $('ttName').textContent = t.name; $('ttVal').textContent = t.val; $('ttSub').textContent = t.sub;
+}
+function setHover(t) {
+  if (t === hoverTarget) { if (t) refreshTooltip(); return; }
+  hoverTarget = t;
+  if (t) { refreshTooltip(); $('tooltip').classList.add('on'); renderer.domElement.style.cursor = 'pointer'; }
+  else { $('tooltip').classList.remove('on'); }
+}
+function positionTooltip(e) {
+  if (!hoverTarget || !e) return;
+  const tt = $('tooltip');
+  tt.style.left = Math.min(e.clientX + 18, innerWidth - tt.offsetWidth - 12) + 'px';
+  tt.style.top  = Math.min(e.clientY + 16, innerHeight - tt.offsetHeight - 12) + 'px';
+}
+function updateHover() {
+  if (ar.active || !pointerOn || dragging || intro.active) { setHover(null); return; }
+  raycaster.setFromCamera(ndc, camera);
+  const hits = raycaster.intersectObjects(compTargets.map(t => t.mesh), false);
+  setHover(hits.length ? compTargets.find(t => t.mesh === hits[0].object) : null);
+}
+let ringOpacity = 0;
+function updateRing(tms) {
+  ringOpacity += ((hoverTarget ? .85 : 0) - ringOpacity) * .14;
+  glowRing.material.opacity = ringOpacity;
+  glowRing.visible = ringOpacity > .02;
+  if (!glowRing.visible) return;
+  if (hoverTarget) {
+    hoverTarget.mesh.getWorldPosition(glowRing.position);
+    glowRing.scale.setScalar(hoverTarget.r * (1 + .06 * Math.sin(tms * .006)));
+    glowRing.quaternion.copy(camera.quaternion);
+  }
+}
+
+/* ============================================================
+   10 · Timekeeping
+============================================================ */
+const INTRO_FROM = 10 * 3600 + 9 * 60 + 37;
+const daySeconds = n => n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds() + n.getMilliseconds() / 1000;
+let intro = {
+  active: true, t0: performance.now(), dur: 2600,
+  cam0: new THREE.Vector3(48, 26, 152), cam1: new THREE.Vector3(26, 12, 96)
+};
+{
+  let delta = daySeconds(new Date()) - INTRO_FROM;
+  while (delta < 0) delta += 43200;
+  intro.delta = delta; intro.from = INTRO_FROM; intro.currentSecs = INTRO_FROM;
+}
+function updateIntro(t) {
+  const k = Math.min(1, (t - intro.t0) / intro.dur), e = easeOutQuint(k);
+  camera.position.lerpVectors(intro.cam0, intro.cam1, e);
+  camera.lookAt(0, 0, -4);
+  watchRoot.rotation.y = (1 - e) * -1.35;
+  watchRoot.rotation.z = (1 - e) * .22;
+  watchRoot.position.y = (1 - e) * -5;
+  intro.currentSecs = intro.from + intro.delta * easeInOutCubic(Math.min(1, k));
+  if (k >= 1) {
+    intro.active = false;
+    watchRoot.rotation.set(0, 0, 0); watchRoot.position.set(0, 0, 0);
+    controls.enabled = true; controls.autoRotate = true; controls.update();
+  }
+}
+function updateHands() {
+  const n = new Date();
+  const secs = intro.active ? intro.currentSecs
+             : (n.getHours() % 12) * 3600 + n.getMinutes() * 60 + n.getSeconds() + n.getMilliseconds() / 1000;
+  secGroup.rotation.z  = -((secs % 60) / 60) * TAU;
+  minGroup.rotation.z  = -(((secs / 60) % 60) / 60) * TAU;
+  hourGroup.rotation.z = -(((secs / 3600) % 12) / 12) * TAU;
+}
+
+{
+  const off = -new Date().getTimezoneOffset(), sg = off >= 0 ? '+' : '−';
+  $('tzMeta').textContent = `UTC${sg}${String(Math.floor(Math.abs(off) / 60)).padStart(2, '0')}:${String(Math.abs(off) % 60).padStart(2, '0')}`;
+}
+function updateClockReadout() {
+  $('clockTime').textContent = formatArabicTime(new Date());
+}
+let lastDay = new Date().getDate();
+function checkDayRoll() {
+  const n = new Date();
+  if (n.getDate() !== lastDay) {
+    lastDay = n.getDate();
+    dateMat.map = makeDateTexture(); dateMat.needsUpdate = true;
+    moonMat.map = makeMoonTexture(); moonMat.needsUpdate = true;
+  }
+}
+
+/* ============================================================
+   11 · AR try-on
+============================================================ */
+const videoEl = $('cam');
+const ar = { active: false, starting: false, stream: null, autoFit: true };
+const arT = { pos: new THREE.Vector3(), scale: 1, rotZ: 0 };
+const ZERO3 = new THREE.Vector3();
+let savedCam = null, mpHands = null, mpReady = false, mpFailed = false, mpLoading = false, mpBusy = false, mpRAF = 0;
+let arTracking = false, prevTrackingUI = null;
+
+function setARStatus(txt, cls) {
+  $('arStatusTxt').textContent = txt;
+  $('arStatus').className = 'ar-chip' + (cls ? ' ' + cls : '');
+}
+function setAutoFit(on, silent) {
+  ar.autoFit = on;
+  $('arAuto').textContent = 'تلقائي: ' + (on ? 'شغّال' : 'إيقاف');
+  if (on && ar.active) loadMP();
+  if (!silent && ar.active && !on) setARStatus('يدوي — اسحب · قرّب · دوّر', 'warn');
+}
+$('arAuto').onclick = () => { if (!mpFailed) setAutoFit(!ar.autoFit); else toast('تتبع المعصم غير متاح في هذا المتصفح.'); };
+
+function lmToWorld(lm, out) {
+  const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
+  const halfW = halfH * camera.aspect;
+  return out.set((1 - 2 * lm.x) * halfW, (1 - 2 * lm.y) * halfH, 0);
+}
+const V1 = new THREE.Vector3(), V2 = new THREE.Vector3(), DIRV = new THREE.Vector3();
+function onHandResults(res) {
+  if (!ar.active) return;
+  const lm = res.multiHandLandmarks && res.multiHandLandmarks[0];
+  if (lm) {
+    arTracking = true;
+    if (!ar.autoFit) return;
+    const wrist = lmToWorld(lm[0], V1), mcp = lmToWorld(lm[9], V2);
+    DIRV.subVectors(mcp, wrist);
+    const dist = DIRV.length();
+    if (dist < 4) return;
+    arT.pos.copy(wrist).addScaledVector(DIRV, .42); arT.pos.z = 0;
+    arT.rotZ = Math.atan2(DIRV.y, DIRV.x) - Math.PI / 2;
+    arT.scale = clamp(dist * .0115, .14, .9);
+  } else arTracking = false;
+}
+function mpFail() {
+  if (mpFailed) return;
+  mpFailed = true; $('arAuto').style.display = 'none';
+  if (ar.active) setARStatus('يدوي — اسحب لتحديد الموقع', 'warn');
+  toast('تتبع المعصم غير متاح — ضع الساعة يدوياً.');
+}
+function loadMP() {
+  if (mpReady || mpLoading || mpFailed) { if (mpReady) startMPLoop(); return; }
+  mpLoading = true;
+  const V = '0.4.1646424915';
+  const s = document.createElement('script');
+  s.src = `https://cdn.jsdelivr.net/npm/@mediapipe/hands@${V}/hands.min.js`;
+  s.crossOrigin = 'anonymous';
+  s.onload = async () => {
+    try {
+      mpHands = new Hands({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@${V}/${f}` });
+      await mpHands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: .5, minTrackingConfidence: .5 });
+      mpHands.onResults(onHandResults);
+      mpReady = true; mpLoading = false;
+      if (ar.active) { setARStatus('أظهر معصمك أمام الكاميرا', 'warn'); startMPLoop(); }
+    } catch (e) { mpLoading = false; mpFail(); }
+  };
+  s.onerror = () => { mpLoading = false; mpFail(); };
+  document.head.appendChild(s);
+}
+let lastSend = 0;
+function startMPLoop() {
+  cancelAnimationFrame(mpRAF);
+  const loop = async () => {
+    if (!ar.active || !mpReady) return;
+    const now = performance.now();
+    if (videoEl.readyState >= 2 && now - lastSend > 33 && !mpBusy) {
+      lastSend = now; mpBusy = true;
+      try { await mpHands.send({ image: videoEl }); } catch (e) {}
+      mpBusy = false;
+    }
+    mpRAF = requestAnimationFrame(loop);
+  };
+  mpRAF = requestAnimationFrame(loop);
+}
+
+async function enterAR() {
+  if (ar.active || ar.starting || intro.active) return;
+  ar.starting = true;
+  document.body.classList.add('ar');
+  setARStatus('طلب إذن الكاميرا…', '');
+  try {
+    ar.stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false
+    });
+  } catch (e) {
+    ar.starting = false;
+    document.body.classList.remove('ar');
+    toast('الكاميرا غير متاحة — اسمح بالوصول لتجربة الساعة.');
+    return;
+  }
+  videoEl.srcObject = ar.stream;
+  try { await videoEl.play(); } catch (e) {}
+  ar.active = true; ar.starting = false;
+  savedCam = { pos: camera.position.clone(), tgt: controls.target.clone() };
+  controls.enabled = false; controls.autoRotate = false;
+  scene.background = null; shadowMesh.visible = false;
+  crystalMesh.material = crystalFakeMat;
+  camera.position.set(0, 0, 120); camera.lookAt(0, 0, 0);
+  arT.pos.set(0, -4, 0); arT.scale = .5; arT.rotZ = 0; $('arRot').value = 0;
+  setHover(null);
+  if (ar.autoFit) { setARStatus('جارٍ تحميل تتبع اليد…', ''); loadMP(); }
+  else setARStatus('يدوي — اسحب لتحديد الموقع', 'warn');
+}
+function exitAR() {
+  if (!ar.active) return;
+  ar.active = false; arTracking = false;
+  cancelAnimationFrame(mpRAF);
+  if (ar.stream) ar.stream.getTracks().forEach(t => t.stop());
+  ar.stream = null; videoEl.srcObject = null;
+  document.body.classList.remove('ar');
+  scene.background = studioBG; shadowMesh.visible = true;
+  crystalMesh.material = crystalMat;
+  const p0 = watchRoot.position.clone(), s0 = watchRoot.scale.x, r0 = watchRoot.rotation.z;
+  tween({ dur: 550, ease: easeOutCubic, onUpdate: k => {
+    watchRoot.position.lerpVectors(p0, ZERO3, k);
+    watchRoot.scale.setScalar(lerp(s0, 1, k));
+    watchRoot.rotation.z = lerp(r0, 0, k);
+  }});
+  camera.position.copy(savedCam.pos); controls.target.copy(savedCam.tgt);
+  controls.enabled = true; controls.autoRotate = true; controls.update();
+}
+$('tryOnBtn').onclick = enterAR;
+$('arExit').onclick = exitAR;
+addEventListener('keydown', e => { if (e.key === 'Escape') exitAR(); });
+
+const arPtr = new Map();
+let pinch0 = null, drag0 = null, lastGesture = 0;
+function pointerToWorld(e, out) {
+  ndc.x = (e.clientX / innerWidth) * 2 - 1;
+  ndc.y = -(e.clientY / innerHeight) * 2 + 1;
+  raycaster.setFromCamera(ndc, camera);
+  const t = -raycaster.ray.origin.z / raycaster.ray.direction.z;
+  return out.copy(raycaster.ray.origin).addScaledVector(raycaster.ray.direction, t);
+}
+const W1 = new THREE.Vector3(), W2 = new THREE.Vector3();
+renderer.domElement.addEventListener('pointerdown', e => {
+  if (!ar.active) return;
+  renderer.domElement.setPointerCapture(e.pointerId);
+  arPtr.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  lastGesture = performance.now();
+  if (ar.autoFit) setAutoFit(false, false);
+  if (arPtr.size === 1) { pointerToWorld(e, W1); drag0 = { w0: W1.clone(), p0: arT.pos.clone() }; }
+  else if (arPtr.size === 2) {
+    const [a, b] = [...arPtr.values()];
+    pinch0 = { d: Math.hypot(a.x - b.x, a.y - b.y), ang: Math.atan2(b.y - a.y, b.x - a.x), s: arT.scale, r: arT.rotZ };
+    drag0 = null;
+  }
+});
+renderer.domElement.addEventListener('pointermove', e => {
+  setNDCStudio(e);
+  if (!ar.active) return;
+  if (arPtr.has(e.pointerId)) {
+    arPtr.get(e.pointerId).x = e.clientX; arPtr.get(e.pointerId).y = e.clientY;
+    if (arPtr.size === 1 && drag0) {
+      pointerToWorld(e, W2);
+      arT.pos.copy(drag0.p0).addScaledVector(W2.sub(drag0.w0), 1);
+      arT.pos.z = 0;
+      arT.pos.x = clamp(arT.pos.x, -70, 70); arT.pos.y = clamp(arT.pos.y, -55, 55);
+    } else if (arPtr.size === 2 && pinch0) {
+      const [a, b] = [...arPtr.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y), ang = Math.atan2(b.y - a.y, b.x - a.x);
+      arT.scale = clamp(pinch0.s * d / Math.max(pinch0.d, 1), .12, 1.1);
+      arT.rotZ = pinch0.r - (ang - pinch0.ang);
+      syncRotSlider();
+    }
+    lastGesture = performance.now();
+  } else if (e.buttons && (e.altKey || e.buttons === 2)) {
+    arT.rotZ += (e.movementX || 0) * .01; syncRotSlider();
+  }
+});
+function arPointerUp(e) {
+  arPtr.delete(e.pointerId);
+  if (arPtr.size < 2) pinch0 = null;
+  if (arPtr.size === 0) drag0 = null; else drag0 = null;
+}
+renderer.domElement.addEventListener('pointerup', arPointerUp);
+renderer.domElement.addEventListener('pointercancel', arPointerUp);
+addEventListener('wheel', e => {
+  if (!ar.active) return;
+  e.preventDefault();
+  arT.scale = clamp(arT.scale * Math.exp(-e.deltaY * .0011), .12, 1.1);
+  lastGesture = performance.now();
+}, { passive: false });
+renderer.domElement.addEventListener('contextmenu', e => { if (ar.active) e.preventDefault(); });
+function syncRotSlider() {
+  let deg = THREE.MathUtils.radToDeg(arT.rotZ);
+  deg = ((deg + 180) % 360 + 360) % 360 - 180;
+  $('arRot').value = deg;
+}
+$('arRot').addEventListener('input', e => { arT.rotZ = THREE.MathUtils.degToRad(+e.target.value); lastGesture = performance.now(); });
+
+function applyARSmoothing() {
+  watchRoot.position.lerp(arT.pos, .22);
+  watchRoot.scale.setScalar(lerp(watchRoot.scale.x, arT.scale, .22));
+  let dr = arT.rotZ - watchRoot.rotation.z;
+  dr = Math.atan2(Math.sin(dr), Math.cos(dr));
+  watchRoot.rotation.z += dr * .22;
+  const trackingUI = arTracking && ar.autoFit;
+  if (trackingUI !== prevTrackingUI) {
+    prevTrackingUI = trackingUI;
+    if (trackingUI) setARStatus('محصور على المعصم — تتبع مباشر', 'ok');
+    else if (ar.autoFit && mpReady) setARStatus('أظهر معصمك أمام الكاميرا', 'warn');
+  }
+  $('guide').classList.toggle('on', ar.active && ar.autoFit && mpReady && !arTracking);
+}
+
+/* ============================================================
+   12 · Pointer plumbing, resize, main loop
+============================================================ */
+function setNDCStudio(e) {
+  ndc.x = (e.clientX / innerWidth) * 2 - 1;
+  ndc.y = -(e.clientY / innerHeight) * 2 + 1;
+}
+renderer.domElement.addEventListener('pointermove', e => {
+  setNDCStudio(e); pointerOn = true; positionTooltip(e);
+});
+renderer.domElement.addEventListener('pointerleave', () => { pointerOn = false; });
+controls.addEventListener('start', () => { dragging = true; });
+controls.addEventListener('end',   () => { dragging = false; });
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  controls.target.x = innerWidth > 820 ? 4.5 : 0;
+});
+
+// Redraw canvas-painted textures once webfonts are ready
+if (document.fonts && document.fonts.ready) {
+  Promise.all([
+    document.fonts.load('700 52px "Amiri"'),
+    document.fonts.load('700 74px "Amiri"'),
+    document.fonts.load('400 22px "IBM Plex Sans Arabic"'),
+    document.fonts.load('600 24px "IBM Plex Sans Arabic"')
+  ]).then(() => {
+    if (dialMesh) {
+      const old = dialMesh.material.map;
+      dialMesh.material.map = makeDialTexture(DIALS.find(d => d.id === state.dial));
+      dialMesh.material.needsUpdate = true; old && old.dispose();
+    }
+    casebackMat.map = makeCasebackTexture(); casebackMat.needsUpdate = true;
+    dateMat.map = makeDateTexture(); dateMat.needsUpdate = true;
+  }).catch(() => {});
+}
+
+// --- boot ---
+updateMetalUI(); updateDialUI(); updateStrapUI();
+setDial('emerald', true);
+updatePrice(); priceShown = BASE;
+$('priceLine').textContent = '€' + priceShown.toLocaleString('en-US');
+updateClockReadout();
+setTimeout(() => buildStrap(state.strap, true), 650);
+
+let prevT = performance.now(), clockAcc = 999, ttAcc = 999;
+function loop(t) {
+  requestAnimationFrame(loop);
+  const dt = Math.min(50, t - prevT); prevT = t;
+  updateTweens(performance.now());
+  if (intro.active) updateIntro(t);
+  if (!ar.active) controls.update(); else applyARSmoothing();
+  updateHands();
+  updateHover();
+  updateRing(t);
+  clockAcc += dt; ttAcc += dt;
+  if (clockAcc > 240) { clockAcc = 0; updateClockReadout(); checkDayRoll(); }
+  if (ttAcc > 600) { ttAcc = 0; refreshTooltip(); }
+  if (!ar.active) renderer.domElement.style.cursor = dragging ? 'grabbing' : (hoverTarget ? 'pointer' : 'grab');
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(loop);
+
+/* ============================================================
+   Page transition navigation
+============================================================ */
+function navigateTo(e, url) {
+  if (e) e.preventDefault();
+  const overlay = document.getElementById('pageTransition');
+  overlay.classList.add('on');
+  setTimeout(() => { window.location.href = url; }, 450);
+}
+// Expose to inline onclick handlers (module scope is not global)
+window.navigateTo = navigateTo;
+</script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1a14">
+<title>من نحن · أُفُق</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a1a14; --ink:#f5efe0; --mut:#7a9a8a; --acc:#c9a84c;
+    --line:rgba(245,239,224,.1); --panel:rgba(10,26,20,.82);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--ink); min-height:100vh;
+    font-family:'IBM Plex Sans Arabic',sans-serif; -webkit-font-smoothing:antialiased;
+    line-height:1.8;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(10,26,20,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{
+    max-width:1100px;margin:0 auto;padding:0 24px;
+    display:flex;align-items:center;justify-content:space-between;
+    height:64px;
+  }
+  .nav-brand{
+    font-family:'Amiri',serif;font-weight:700;font-size:22px;
+    color:var(--ink);text-decoration:none;letter-spacing:.1em;
+  }
+  .nav-brand span{color:var(--acc)}
+  .nav-links{display:flex;gap:8px;align-items:center}
+  .nav-links a{
+    color:var(--mut);text-decoration:none;font-size:13px;
+    padding:8px 16px;border-radius:8px;transition:.2s;
+  }
+  .nav-links a:hover{color:var(--ink);background:rgba(245,239,224,.06)}
+  .nav-links a.active{color:var(--acc);background:rgba(201,168,76,.1)}
+  .nav-links a.cta{
+    background:var(--acc);color:#0a1a14;font-weight:500;
+  }
+  .nav-links a.cta:hover{background:#d4b85c}
+
+  /* ---------- hero ---------- */
+  .hero{
+    max-width:1100px;margin:0 auto;
+    padding:100px 24px 80px;
+    text-align:center;
+  }
+  .hero .micro{
+    font-size:11px;letter-spacing:.3em;color:var(--acc);
+    text-transform:uppercase;margin-bottom:20px;
+  }
+  .hero h1{
+    font-family:'Amiri',serif;font-weight:700;
+    font-size:clamp(36px,6vw,64px);
+    line-height:1.3;margin-bottom:24px;
+  }
+  .hero h1 em{font-style:normal;color:var(--acc)}
+  .hero p{
+    max-width:600px;margin:0 auto;
+    color:var(--mut);font-size:16px;line-height:2;
+  }
+
+  /* ---------- content sections ---------- */
+  .section{
+    max-width:1100px;margin:0 auto;
+    padding:60px 24px;
+  }
+  .section-label{
+    font-size:10px;letter-spacing:.3em;color:var(--acc);
+    margin-bottom:16px;text-transform:uppercase;
+  }
+  .section h2{
+    font-family:'Amiri',serif;font-weight:700;
+    font-size:clamp(24px,4vw,36px);
+    margin-bottom:20px;
+  }
+  .section p{
+    color:var(--mut);font-size:15px;line-height:2;
+    max-width:700px;
+  }
+
+  /* ---------- values grid ---------- */
+  .values{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:20px;margin-top:40px;
+  }
+  .value-card{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:28px;
+    transition:.3s;
+  }
+  .value-card:hover{border-color:var(--acc);transform:translateY(-4px)}
+  .value-card .icon{
+    width:48px;height:48px;border-radius:12px;
+    background:rgba(201,168,76,.12);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;margin-bottom:16px;
+  }
+  .value-card h3{
+    font-family:'Amiri',serif;font-size:18px;
+    margin-bottom:8px;color:var(--ink);
+  }
+  .value-card p{font-size:13px;color:var(--mut);line-height:1.9}
+
+  /* ---------- stats ---------- */
+  .stats{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:20px;margin-top:40px;
+  }
+  .stat{
+    text-align:center;padding:24px;
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;
+  }
+  .stat .num{
+    font-family:'Amiri',serif;font-weight:700;
+    font-size:36px;color:var(--acc);
+  }
+  .stat .label{font-size:12px;color:var(--mut);margin-top:4px}
+
+  /* ---------- timeline ---------- */
+  .timeline{
+    margin-top:40px;position:relative;
+    padding-right:30px;
+  }
+  .timeline::before{
+    content:'';position:absolute;right:8px;top:0;bottom:0;
+    width:2px;background:var(--line);
+  }
+  .timeline-item{
+    position:relative;padding-bottom:32px;
+  }
+  .timeline-item::before{
+    content:'';position:absolute;right:-26px;top:6px;
+    width:12px;height:12px;border-radius:50%;
+    background:var(--acc);border:2px solid var(--bg);
+  }
+  .timeline-item .year{
+    font-family:'Amiri',serif;font-weight:700;
+    color:var(--acc);font-size:14px;
+  }
+  .timeline-item h3{
+    font-size:16px;margin:4px 0 6px;
+  }
+  .timeline-item p{font-size:13px;color:var(--mut)}
+
+  /* ---------- team ---------- */
+  .team{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:20px;margin-top:40px;
+  }
+  .member{
+    text-align:center;padding:28px;
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;transition:.3s;
+  }
+  .member:hover{border-color:var(--acc)}
+  .member .avatar{
+    width:72px;height:72px;border-radius:50%;
+    background:rgba(201,168,76,.12);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Amiri',serif;font-size:28px;color:var(--acc);
+    margin:0 auto 16px;
+  }
+  .member h3{font-size:15px;margin-bottom:4px}
+  .member .role{font-size:12px;color:var(--mut)}
+
+  /* ---------- footer ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    margin-top:60px;
+  }
+  .footer-inner{
+    max-width:1100px;margin:0 auto;
+    padding:40px 24px;
+    display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:20px;
+  }
+  .footer-brand{
+    font-family:'Amiri',serif;font-weight:700;font-size:18px;
+  }
+  .footer-brand span{color:var(--acc)}
+  .footer-links{display:flex;gap:20px}
+  .footer-links a{
+    color:var(--mut);text-decoration:none;font-size:13px;
+    transition:.2s;
+  }
+  .footer-links a:hover{color:var(--acc)}
+  .footer-copy{
+    width:100%;text-align:center;
+    font-size:11px;color:var(--mut);
+    padding-top:20px;border-top:1px solid var(--line);
+  }
+
+  /* ---------- page transition ---------- */
+  #pageTransition{
+    position:fixed;inset:0;z-index:999;
+    background:var(--bg);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;
+    transition:opacity .4s cubic-bezier(.4,0,.2,1);
+  }
+  #pageTransition.on{opacity:1;pointer-events:all}
+  #pageTransition .loader{
+    width:40px;height:40px;
+    border:2px solid var(--line);
+    border-top-color:var(--acc);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------- scroll reveal ---------- */
+  .reveal{opacity:0;transform:translateY(28px);
+    transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:640px){
+    .nav{height:56px;padding:0 16px}
+    .nav-brand{font-size:18px}
+    .nav-links a{padding:6px 10px;font-size:12px}
+    .hero{padding:60px 16px 40px}
+    .section{padding:40px 16px}
+    .footer-inner{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<!-- Page transition overlay -->
+<div id="pageTransition"><div class="loader"></div></div>
+
+<header>
+  <nav class="nav">
+    <a href="ufoq.html" class="nav-brand" onclick="navigateTo(event,'ufoq.html')">أُفُق<span>.</span></a>
+    <div class="nav-links">
+      <a href="ufoq.html" onclick="navigateTo(event,'ufoq.html')">المُعدِّل</a>
+      <a href="about.html" class="active">من نحن</a>
+      <a href="ufoq.html" class="cta" onclick="navigateTo(event,'ufoq.html')">جرّب الساعة</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="micro">مَعْمَل السَّاعَاتِ — طَرَابُلُس</div>
+  <h1>نصنع الوقت <em>بِحُبّ</em></h1>
+  <p>
+    أُفُق ليست مجرد علامة تجارية للساعات، بل قصة شغف بدأت عام ١٩٤٨ في ورشة صغيرة
+    بطرابلس، وما زالت تُروى اليوم بأيدي صنّاع يؤمنون أن الوقت أثمن ما نملك.
+  </p>
+</section>
+
+<section class="section">
+  <div class="section-label">قِصَّتُنا</div>
+  <h2>من ورشة صغيرة إلى دار عالمية</h2>
+  <p>
+    تأسست أُفُق على يد الحاج يوسف أُفُق، صانع الساعات الذي تعلّم المهنة في جنيف
+    ثم عاد إلى وطنه ليؤسس أول ورشة ساعات في شمال لبنان. اليوم، نواصل نفس الفلسفة:
+    كل ساعة تُجمّع بواسطة صانع واحد، من أول مسمار إلى آخر ضبط.
+  </p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="year">١٩٤٨</div>
+      <h3>التأسيس</h3>
+      <p>افتتاح أول ورشة في طرابلس بثلاث أدوات وطاولة خشبية.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="year">١٩٦٢</div>
+      <h3>أول حركة محلية</h3>
+      <p>إطلاق الحركة "أ-١" أول حركة أوتوماتيكية مصنّعة بالكامل في لبنان.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="year">١٩٨٥</div>
+      <h3>التوسع</h3>
+      <p>افتتاح معرض في بيروت وبدء التصدير إلى الخليج وأوروبا.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="year">٢٠١٠</div>
+      <h3>الجيل الثالث</h3>
+      <p>قيادة الجيل الثالث من عائلة أُفُق مع إطلاق مجموعة "هلال" الشهيرة.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="year">٢٠٢٤</div>
+      <h3>العصر الرقمي</h3>
+      <p>إطلاق مُعدِّل الساعات الافتراضي وتجربة الواقع المعزز.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">قِيَمُنا</div>
+  <h2>ما الذي يحرّكنا</h2>
+
+  <div class="values">
+    <div class="value-card">
+      <div class="icon">✦</div>
+      <h3>الحرفية</h3>
+      <p>كل ساعة تمر بستة أيدي من الصنّاع، كل منهم متخصص في مرحلة واحدة.</p>
+    </div>
+    <div class="value-card">
+      <div class="icon">◈</div>
+      <h3>الأصالة</h3>
+      <p>نحترم التراث العربي والإسلامي في كل تصميم، من النقوش الهندسية إلى الخطوط.</p>
+    </div>
+    <div class="value-card">
+      <div class="icon">⟡</div>
+      <h3>الدقة</h3>
+      <p>كل حركة تُضبط في ستة مواضع وتُختبر لمدة ١٤ يوماً قبل التسليم.</p>
+    </div>
+    <div class="value-card">
+      <div class="icon">❖</div>
+      <h3>الاستدامة</h3>
+      <p>نستخدم معادن مُعاد تدويرها وتغليفاً صديقاً للبيئة.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">أرقام</div>
+  <h2>أُفُق بالأرقام</h2>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="num">٧٦</div>
+      <div class="label">عاماً من الحرفة</div>
+    </div>
+    <div class="stat">
+      <div class="num">١٢</div>
+      <div class="label">صانعاً في الورشة</div>
+    </div>
+    <div class="stat">
+      <div class="num">٤٨</div>
+      <div class="label">ساعة سنوياً</div>
+    </div>
+    <div class="stat">
+      <div class="num">٦</div>
+      <div class="label">مواضع ضبط</div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">الفريق</div>
+  <h2>صنّاع الوقت</h2>
+
+  <div class="team">
+    <div class="member">
+      <div class="avatar">ي</div>
+      <h3>يوسف أُفُق</h3>
+      <div class="role">المؤسس والرئيس الفخري</div>
+    </div>
+    <div class="member">
+      <div class="avatar">م</div>
+      <h3>مريم أُفُق</h3>
+      <div class="role">المديرة الإبداعية</div>
+    </div>
+    <div class="member">
+      <div class="avatar">ع</div>
+      <h3>علي الحاج</h3>
+      <div class="role">كبير صانعي الحركات</div>
+    </div>
+    <div class="member">
+      <div class="avatar">س</div>
+      <h3>سارة خليل</h3>
+      <div class="role">مديرة التصميم</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">أُفُق<span>.</span></div>
+    <div class="footer-links">
+      <a href="ufoq.html" onclick="navigateTo(event,'ufoq.html')">المُعدِّل</a>
+      <a href="about.html">من نحن</a>
+      <a href="ufoq.html" onclick="navigateTo(event,'ufoq.html')">جرّب الساعة</a>
+    </div>
+    <div class="footer-copy">
+      أُفُق © ٢٠٢٤ — مَعْمَل السَّاعَاتِ · طَرَابُلُس · تأسّس ١٩٤٨
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Register Service Worker for PWA
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('SW registered:', reg.scope))
+        .catch(err => console.log('SW registration failed:', err));
+    });
+  }
+
+  // Smooth page transition navigation
+  function navigateTo(e, url) {
+    if (e) e.preventDefault();
+    document.getElementById('pageTransition').classList.add('on');
+    setTimeout(() => { window.location.href = url; }, 450);
+  }
+
+  // Scroll reveal — sections fade in as they enter the viewport
+  const revealEls = document.querySelectorAll('.hero, .section, footer .footer-inner');
+  revealEls.forEach(el => el.classList.add('reveal'));
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
+  // Ensure above-the-fold content shows immediately
+  requestAnimationFrame(() => {
+    document.querySelector('.hero.reveal')?.classList.add('in');
+  });
+</script>
+
+</body>
+</html>
